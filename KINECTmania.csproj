@@ -88,10 +88,10 @@
     <Folder Include=".git\refs\tags\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="kinectDataInput.cs" />
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
+    <Compile Include="kinectDataInput\kinectDataInput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
