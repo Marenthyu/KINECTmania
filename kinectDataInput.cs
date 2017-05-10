@@ -53,11 +53,11 @@ public class kinectDataInput
             }
         }
     }
-    public static void Main(String[] args){
+/*    public static void Main(String[] args){
         kinectDataInput kdi = new kinectDataInput();
         while (true)
         {
             
         }
-    }
+    }*/
 }

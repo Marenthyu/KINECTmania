@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
+using KINECTmania.GameLogic;
+using Timer = System.Timers.Timer;
 
 namespace KINECTmania
 {
@@ -38,19 +41,7 @@ namespace KINECTmania
             return list;
         }
 
-
-        public static void Main(String[] args)
-        {
-            Console.WriteLine("Starting up....");
-            FileParser fp = new FileParser("ShakeItOff.kmsf");
-            List<String> lines = fp.readFile();
-            if(lines!=null)
-                Console.WriteLine("Read {0} Lines", lines.Count);
-            else
-            {
-                Console.WriteLine("No lines read.");
-            }
-        }
+        
 
     }
 }
