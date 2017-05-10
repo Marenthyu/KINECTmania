@@ -10,7 +10,7 @@ namespace KINECTmania
         public static void Main(String [] args) {
             kinectDataInput kdi = new kinectDataInput();
             while (true) {
-                Console.In.Read;
+                
             }
         }
         private KinectSensor kSensor = null;
@@ -117,7 +117,7 @@ namespace KINECTmania
             catch (NullReferenceException e)
             {
                 Console.WriteLine("At least one Button wasn`t defined!" + e.Message);
-                return hit;
+                return buttonNumber;
             }
         }
         private double calDistance(Joint hand, Joint button)
