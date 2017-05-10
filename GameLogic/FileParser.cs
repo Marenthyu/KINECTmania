@@ -39,18 +39,18 @@ namespace KINECTmania
         }
 
 
-        public static void Main(String[] args)
-        {
-            Console.WriteLine("Starting up....");
-            FileParser fp = new FileParser("ShakeItOff.kmsf");
-            List<String> lines = fp.readFile();
-            if(lines!=null)
-                Console.WriteLine("Read {0} Lines", lines.Count);
-            else
-            {
-                Console.WriteLine("No lines read.");
-            }
-        }
+        //public static void Main(String[] args)
+        //{
+        //    Console.WriteLine("Starting up....");
+        //    FileParser fp = new FileParser("ShakeItOff.kmsf");
+        //    List<String> lines = fp.readFile();
+        //    if(lines!=null)
+        //        Console.WriteLine("Read {0} Lines", lines.Count);
+        //    else
+        //    {
+        //        Console.WriteLine("No lines read.");
+        //    }
+        //}
 
     }
 }
