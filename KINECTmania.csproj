@@ -82,6 +82,11 @@
     <Folder Include=".git\objects\pack\" />
     <Folder Include=".git\refs\tags\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GameLogic\Note.cs" />
+    <Compile Include="GameLogic\FileParser.cs" />
+    <Compile Include="GameLogic\Song.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />
