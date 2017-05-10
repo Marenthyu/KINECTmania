@@ -1,5 +1,7 @@
 ﻿using Microsoft.Kinect;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 
 public class kinectDataInput
 {
@@ -10,8 +12,6 @@ public class kinectDataInput
 	{
         initialiseKinect();
 
-       
-
 	}
 
     public void initialiseKinect(){
@@ -20,6 +20,7 @@ public class kinectDataInput
             //starts the Kinect
             kSensor.Open();
         }
+        Console.WriteLine("Kinect open");
         bodyFrameReader = kSensor.BodyFrameSource.OpenReader();
 
         if(bodyFrameReader != null){
@@ -42,7 +43,7 @@ public class kinectDataInput
         if(dataReceived){
             foreach(Body body in bodies){
                 if(body.IsTracked){
-                    IReadOnlyDictionary<JointType, Joint> joints =body.Joints;
+                    IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
                     Dictionary<JointType, Point> jointPoints =new Dictionary<JointType, Point>();
                     Joint rightHandJoint = joints[JointType.HandRight];
                     Joint leftHandJoint = joints[JointType.HandLeft];
@@ -53,6 +54,10 @@ public class kinectDataInput
         }
     }
     public static void Main(String[] args){
-        kinectDataInput();
+        kinectDataInput kdi = new kinectDataInput();
+        while (true)
+        {
+            
+        }
     }
 }
