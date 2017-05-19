@@ -2,33 +2,35 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Microsoft.Kinect;
-
-namespace KINECTmania
+using System.Threading;
+namespace KINECTmania.kinectDataInput
 {
     public class kinectDataInput
     {
         public static void Main(String [] args) {
             kinectDataInput kdi = new kinectDataInput();
-            while (true) {
-                refreshData();
-                //throws events when theres a reason
+            bool keepRunning = true;
+            while (keepRunning) {
+                kdi.initialiseKinect();
             }
         }
         private KinectSensor kSensor = null;
         private BodyFrameReader bodyFrameReader = null;
         private Body[] bodies = null;
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
-        private double buttonSize = 50.0;
+        private float buttonSize = 0.5F;
         public kinectDataInput()
         {
-            arrowUp.Position.X = 960;
-            arrowUp.Position.Y = 50;
-            arrowDown.Position.X = 960;
-            arrowDown.Position.Y = 1030;
-            arrowLeft.Position.X = 50;
-            arrowLeft.Position.Y = 540;
-            arrowRight.Position.X = 1870;
-            arrowRight.Position.Y = 540;
+            kinectEventHandler keh = new kinectEventHandler();
+            Thread eventSlave = new Thread(keh.throwEvent);
+            arrowUp.Position.X = 0.0F;
+            arrowUp.Position.Y = 0.5F;
+            arrowDown.Position.X = 0.0F;
+            arrowDown.Position.Y = -0.5F;
+            arrowLeft.Position.X = -0.5F;
+            arrowLeft.Position.Y = 0.0F;
+            arrowRight.Position.X = 0.5F;
+            arrowRight.Position.Y = 0.0F;
 
             initialiseKinect();
         }
@@ -41,7 +43,6 @@ namespace KINECTmania
                 //starts the Kinect
                 kSensor.Open();
             }
-            Console.WriteLine("Kinect open");
             bodyFrameReader = kSensor.BodyFrameSource.OpenReader();
 
             if (bodyFrameReader != null)
@@ -78,6 +79,37 @@ namespace KINECTmania
                         Joint leftHandJoint = joints[JointType.HandLeft];
                         Console.WriteLine(rightHandJoint.Position.X + rightHandJoint.Position.Y);
                         Console.WriteLine(leftHandJoint.Position.X + leftHandJoint.Position.Y);
+                        short rHit = buttonHit(rightHandJoint);
+                        short lHit = buttonHit(leftHandJoint);
+                        switch (rHit) {
+                            case 1:
+                                Console.WriteLine("UP");
+                                break;
+                            case 2:
+                                Console.WriteLine("DOWN");
+                                break;
+                            case 3:
+                                Console.WriteLine("LEFT");
+                                break;
+                            case 4:
+                                Console.WriteLine("RIGHT");
+                                break;
+                        }
+                        switch (lHit)
+                        {
+                            case 1:
+                                Console.WriteLine("UP");
+                                break;
+                            case 2:
+                                Console.WriteLine("DOWN");
+                                break;
+                            case 3:
+                                Console.WriteLine("LEFT");
+                                break;
+                            case 4:
+                                Console.WriteLine("RIGHT");
+                                break;
+                        }
                     }
                 }
             }
@@ -97,9 +129,9 @@ namespace KINECTmania
             }
             return arrowJoint;
         }
-        private int buttonHit(Joint handJoint)
+        private short buttonHit(Joint handJoint)
         {
-            int buttonNumber = -1;
+            short buttonNumber = -1;
             try
             {
                 if (handJoint != null)
@@ -128,9 +160,8 @@ namespace KINECTmania
                 return buttonNumber;
 
             }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
             {
-                Console.WriteLine("At least one Button wasn`t defined!" + e.Message);
                 return buttonNumber;
             }
         }
@@ -155,11 +186,5 @@ namespace KINECTmania
             distance = Math.Sqrt(d);
             return distance;
         }
-        public static void refreshData()
-        {
-            //this function will refresh everything in our Lifes
-
-        }
     }
-
 }

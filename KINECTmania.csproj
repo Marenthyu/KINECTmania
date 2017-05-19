@@ -91,7 +91,8 @@
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
-    <Compile Include="kinectDataInput\kinectDataInput.cs" />
+    <Compile Include="kinectProcessing\kinectEventHandler.cs" />
+    <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
