@@ -7,22 +7,34 @@ namespace KINECTmania.kinectDataInput
 {
     public class kinectDataInput
     {
-        public static void Main(String [] args) {
+        public static void Main(String[] args) {
             kinectDataInput kdi = new kinectDataInput();
             bool keepRunning = true;
+            //keepRunnung will change be events(to start and stop the game)
             while (keepRunning) {
                 kdi.initialiseKinect();
             }
+            //Cleaning the reserved RAM here
+
         }
         private KinectSensor kSensor = null;
         private BodyFrameReader bodyFrameReader = null;
         private Body[] bodies = null;
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
-        private float buttonSize = 0.5F;
+        private bool[] stillHittingLeft = new bool[4];
+        private bool[] stillHittingRight = new bool[4];
+        private float buttonSize = 0.3F;
         public kinectDataInput()
         {
             kinectEventHandler keh = new kinectEventHandler();
             Thread eventSlave = new Thread(keh.throwEvent);
+            for (int i = 0; i < stillHittingLeft.Length; i++) {
+                stillHittingLeft[i] = false;
+            }
+            for (int i = 0; i < stillHittingRight.Length; i++)
+            {
+                stillHittingRight[i] = false;
+            }
             arrowUp.Position.X = 0.0F;
             arrowUp.Position.Y = 0.5F;
             arrowDown.Position.X = 0.0F;
@@ -62,10 +74,11 @@ namespace KINECTmania.kinectDataInput
                     {
                         bodies = new Body[bodyFrame.BodyCount];
                     }
-
+                    //GetAndrefreshBodyData still not refreshs the Bodydata. I have to fix it!!!
+                    bodyFrame.GetAndRefreshBodyData(bodies);
+                    dataReceived = true;
                 }
-                bodyFrame.GetAndRefreshBodyData(bodies);
-                dataReceived = true;
+
             }
             if (dataReceived)
             {
@@ -74,40 +87,70 @@ namespace KINECTmania.kinectDataInput
                     if (body.IsTracked)
                     {
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-                        Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
-                        Joint rightHandJoint = joints[JointType.HandRight];
-                        Joint leftHandJoint = joints[JointType.HandLeft];
-                        Console.WriteLine(rightHandJoint.Position.X + rightHandJoint.Position.Y);
-                        Console.WriteLine(leftHandJoint.Position.X + leftHandJoint.Position.Y);
-                        short rHit = buttonHit(rightHandJoint);
-                        short lHit = buttonHit(leftHandJoint);
+                        Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>(); 
+                        Console.WriteLine("RIGHT: " + joints[JointType.HandRight].Position.X.ToString() + " | " + joints[JointType.HandRight].Position.Y.ToString());
+                        Console.WriteLine("LEFT: " + joints[JointType.HandLeft].Position.X.ToString() + " | " + joints[JointType.HandLeft].Position.Y.ToString());
+                        short rHit = buttonHit(joints[JointType.HandRight],stillHittingRight);
+                        short lHit = buttonHit(joints[JointType.HandLeft],stillHittingLeft);
                         switch (rHit) {
                             case 1:
-                                Console.WriteLine("UP");
+                                if (!(stillHittingRight[0]))
+                                {
+                                    Console.WriteLine("UP");
+                                    stillHittingRight[0] = true;
+                                }
                                 break;
                             case 2:
-                                Console.WriteLine("DOWN");
+                                if (!(stillHittingRight[1]))
+                                {
+                                    Console.WriteLine("DOWN");
+                                    stillHittingRight[1] = true;
+                                }
                                 break;
                             case 3:
-                                Console.WriteLine("LEFT");
+                                if (!(stillHittingRight[2]))
+                                {
+                                    Console.WriteLine("LEFT");
+                                    stillHittingRight[2] = true;
+                                }
                                 break;
                             case 4:
-                                Console.WriteLine("RIGHT");
+                                if (!(stillHittingRight[3]))
+                                {
+                                    Console.WriteLine("RIGHT");
+                                    stillHittingRight[3] = true;
+                                }
                                 break;
                         }
                         switch (lHit)
                         {
                             case 1:
-                                Console.WriteLine("UP");
+                                if (!(stillHittingLeft[0]))
+                                {
+                                    Console.WriteLine("UP");
+                                    stillHittingLeft[0] = true;
+                                }
                                 break;
                             case 2:
-                                Console.WriteLine("DOWN");
+                                if (!(stillHittingLeft[1]))
+                                {
+                                    Console.WriteLine("DOWN");
+                                    stillHittingLeft[1] = true;
+                                }
                                 break;
                             case 3:
-                                Console.WriteLine("LEFT");
+                                if (!(stillHittingLeft[2]))
+                                {
+                                    Console.WriteLine("LEFT");
+                                    stillHittingLeft[2] = true;
+                                }
                                 break;
                             case 4:
-                                Console.WriteLine("RIGHT");
+                                if (!(stillHittingLeft[3]))
+                                {
+                                    Console.WriteLine("RIGHT");
+                                    stillHittingLeft[3] = true;
+                                }
                                 break;
                         }
                     }
@@ -129,7 +172,7 @@ namespace KINECTmania.kinectDataInput
             }
             return arrowJoint;
         }
-        private short buttonHit(Joint handJoint)
+        private short buttonHit(Joint handJoint, bool[] stillHitting)
         {
             short buttonNumber = -1;
             try
@@ -139,22 +182,37 @@ namespace KINECTmania.kinectDataInput
                     if (calDistance(handJoint, arrowUp) < buttonSize)
                     {
                         buttonNumber = 1;
-                        Console.WriteLine("Pfeil hoch");
+
+                    }
+                    else {
+                        if (stillHitting[0] == true) {
+                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                        }
+                        stillHitting[0] = false;
                     }
                     if (calDistance(handJoint, arrowDown) < buttonSize)
                     {
                         buttonNumber = 2;
-                        Console.WriteLine("Pfeil runter");
+                    }
+                    else
+                    {
+                        stillHitting[1] = false;
                     }
                     if (calDistance(handJoint, arrowLeft) < buttonSize)
                     {
                         buttonNumber = 3;
-                        Console.WriteLine("Pfeil links");
+                    }
+                    else
+                    {
+                        stillHitting[2] = false;
                     }
                     if (calDistance(handJoint, arrowRight) < buttonSize)
                     {
                         buttonNumber = 4;
-                        Console.WriteLine("Pfeil rechts");
+                    }
+                    else
+                    {
+                        stillHitting[3] = false;
                     }
                 }
                 return buttonNumber;
