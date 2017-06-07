@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using Microsoft.SqlServer.Server;
+using NAudio.Wave;
 using Timer = System.Timers.Timer;
 
 namespace KINECTmania.GameLogic
@@ -26,6 +27,7 @@ namespace KINECTmania.GameLogic
         public static void Main(String[] args)
         {
             Console.WriteLine("Starting up....");
+            playMedia();
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.CheckFileExists = true;
             ofd.Filter = "KINECTmania Song Files (*.kmsf)|*.kmsf";
@@ -45,44 +47,47 @@ namespace KINECTmania.GameLogic
             enumerator.MoveNext();
             nextNote = enumerator.Current;
 
-            t.Elapsed += (s_, e_) =>  Trigger();
-
+            long songTime = testSong.GetLength() * 100;
+            
             startTime = DateTime.Now;
-            t.Start();
-            while (t.Enabled)
+            while ((elapsedTime = (long)(DateTime.Now - startTime).TotalMilliseconds) < songTime)
             {
-                
+                while (nextNote != null && nextNote.StartTime() < elapsedTime)
+                {
+
+                    Console.WriteLine("Timestamp: {0}, Note: {1}", elapsedTime, nextNote);
+                    if (enumerator.MoveNext())
+                    {
+                        nextNote = enumerator.Current;
+                    }
+                    else
+                    {
+                        //t.Stop();
+                        Console.WriteLine("End of Song.");
+                        nextNote = null;
+                        break;
+                    }
+
+                }
             }
         }
 
-        public static void Trigger()
+        public static void playMedia()
         {
-
-            elapsedTime = (long) (DateTime.Now - startTime).TotalMilliseconds;
-
-            while (nextNote!=null && nextNote.StartTime() < elapsedTime)
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.CheckFileExists = true;
+            ofd.Filter = "mp3 file|*.mp3";
+            DialogResult result = ofd.ShowDialog();
+            if (result.ToString() != "OK")
             {
-                
-                Console.WriteLine("Timestamp: {0}, Note: {1}", elapsedTime, nextNote);
-                if (enumerator.MoveNext())
-                {
-                    nextNote = enumerator.Current;
-                }
-                else
-                {
-                    //t.Stop();
-                    Console.WriteLine("End of Song.");
-                    nextNote = null;
-                    break;
-                }
-                
+                Console.WriteLine("Please select a File.");
+                return;
             }
-
-            if (elapsedTime > (testSong.GetLength() * 1000))
-            {
-                t.Stop();
-                Console.WriteLine("End of Song.");
-            }
+            Mp3FileReader reader = new Mp3FileReader(ofd.FileName);
+            WaveOut wavOut = new WaveOut();
+            wavOut.Init(reader);
+            wavOut.Play();
         }
+        
     }
 }
