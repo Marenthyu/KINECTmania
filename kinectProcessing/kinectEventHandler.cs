@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KINECTmania.kinectDataInput
 {
-    class kinectEventHandler       
+    class kinectEventHandler     
     {
         private String events {
             get { return events; }

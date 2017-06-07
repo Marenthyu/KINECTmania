@@ -88,8 +88,8 @@ namespace KINECTmania.kinectDataInput
                     {
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
                         Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>(); 
-                        Console.WriteLine("RIGHT: " + joints[JointType.HandRight].Position.X.ToString() + " | " + joints[JointType.HandRight].Position.Y.ToString());
-                        Console.WriteLine("LEFT: " + joints[JointType.HandLeft].Position.X.ToString() + " | " + joints[JointType.HandLeft].Position.Y.ToString());
+                        //Console.WriteLine("RIGHT: " + joints[JointType.HandRight].Position.X.ToString() + " | " + joints[JointType.HandRight].Position.Y.ToString());
+                        //Console.WriteLine("LEFT: " + joints[JointType.HandLeft].Position.X.ToString() + " | " + joints[JointType.HandLeft].Position.Y.ToString());
                         short rHit = buttonHit(joints[JointType.HandRight],stillHittingRight);
                         short lHit = buttonHit(joints[JointType.HandLeft],stillHittingLeft);
                         switch (rHit) {
@@ -239,9 +239,7 @@ namespace KINECTmania.kinectDataInput
             else {
                 yHelp = button.Position.Y - hand.Position.Y;
             }
-            double distance = -1.0;
-            double d = (Math.Pow(xHelp,2.0) + (Math.Pow(yHelp,2.0)));
-            distance = Math.Sqrt(d);
+            double distance = Math.Sqrt((Math.Pow(xHelp, 2.0) + (Math.Pow(yHelp, 2.0))));
             return distance;
         }
     }
