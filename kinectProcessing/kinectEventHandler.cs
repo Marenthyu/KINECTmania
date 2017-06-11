@@ -6,33 +6,44 @@ using System.Threading.Tasks;
 
 namespace KINECTmania.kinectDataInput
 {
-    class kinectEventHandler     
+    public class KinectEventArgs : EventArgs  
     {
-        private String events {
-            get { return events; }
-            set { events = value; }
+        public KinectEventArgs(String s) {
+            message = s;
         }
-        public kinectEventHandler() {
+        private String message;
+
+        public String Message {
+            get {return message; }
+            set {message = value; }
+        } 
+    }
+    class Publisher{
+        public event EventHandler<KinectEventArgs> RaiseKinectEvent;
+        public void SendEvent(String s) {
+            OnRaiseKinectEvent(new KinectEventArgs(s));
+        }
+        protected virtual void OnRaiseKinectEvent(KinectEventArgs e) {
+            EventHandler<KinectEventArgs> handler = RaiseKinectEvent;
+            if (handler != null) {
+                e.Message += String.Format(":{0}", DateTime.Now.ToString());
+                handler(this, e);
+            } else {
+                Console.WriteLine("No Subs");
+            }
             
         }
-        public kinectEventHandler(String events) {
-            this.events = events;
+    }
+    class Subscriber {
+        private string id;
+        public Subscriber(string ID, Publisher pub) {
+            id = ID;
+            pub.RaiseKinectEvent += HandleKinectEvent;
         }
-        public void throwEvent() {
-            while (true)
-                if (events == "UP") { Console.WriteLine("UP"); }
-                else
-                {
-                    if (events == "DOWN") { Console.WriteLine("DOWN"); }
-                    else
-                    {
-                        if (events == "LEFT") { Console.WriteLine("LEFT"); }
-                        else
-                        {
-                            if (events == "RIGHT") { Console.WriteLine("RIGHT"); }
-                        }
-                    }
-                }
+        void HandleKinectEvent(object sender, KinectEventArgs e) {
+            Console.WriteLine("Did it!");
+
         }
+        
     }
 }

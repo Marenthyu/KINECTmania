@@ -24,10 +24,12 @@ namespace KINECTmania.kinectDataInput
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
         private float buttonSize = 0.3F;
+        Publisher pub = new Publisher();
         public kinectDataInput()
         {
-            kinectEventHandler keh = new kinectEventHandler();
-            Thread eventSlave = new Thread(keh.throwEvent);
+
+            //kinectEventHandler keh = new kinectEventHandler();
+            //Thread eventSlave = new Thread(keh.throwEvent);
             for (int i = 0; i < stillHittingLeft.Length; i++) {
                 stillHittingLeft[i] = false;
             }
@@ -74,7 +76,6 @@ namespace KINECTmania.kinectDataInput
                     {
                         bodies = new Body[bodyFrame.BodyCount];
                     }
-                    //GetAndrefreshBodyData still not refreshs the Bodydata. I have to fix it!!!
                     bodyFrame.GetAndRefreshBodyData(bodies);
                     dataReceived = true;
                 }
@@ -96,28 +97,28 @@ namespace KINECTmania.kinectDataInput
                             case 1:
                                 if (!(stillHittingRight[0]))
                                 {
-                                    Console.WriteLine("UP");
+                                    pub.SendEvent("UP");
                                     stillHittingRight[0] = true;
                                 }
                                 break;
                             case 2:
                                 if (!(stillHittingRight[1]))
                                 {
-                                    Console.WriteLine("DOWN");
+                                    pub.SendEvent("DOWN");
                                     stillHittingRight[1] = true;
                                 }
                                 break;
                             case 3:
                                 if (!(stillHittingRight[2]))
                                 {
-                                    Console.WriteLine("LEFT");
+                                    pub.SendEvent("LEFT");
                                     stillHittingRight[2] = true;
                                 }
                                 break;
                             case 4:
                                 if (!(stillHittingRight[3]))
                                 {
-                                    Console.WriteLine("RIGHT");
+                                    pub.SendEvent("RIGHT");
                                     stillHittingRight[3] = true;
                                 }
                                 break;
@@ -127,28 +128,28 @@ namespace KINECTmania.kinectDataInput
                             case 1:
                                 if (!(stillHittingLeft[0]))
                                 {
-                                    Console.WriteLine("UP");
+                                    pub.SendEvent("UP");
                                     stillHittingLeft[0] = true;
                                 }
                                 break;
                             case 2:
                                 if (!(stillHittingLeft[1]))
                                 {
-                                    Console.WriteLine("DOWN");
+                                    pub.SendEvent("DOWN");
                                     stillHittingLeft[1] = true;
                                 }
                                 break;
                             case 3:
                                 if (!(stillHittingLeft[2]))
                                 {
-                                    Console.WriteLine("LEFT");
+                                    pub.SendEvent("LEFT");
                                     stillHittingLeft[2] = true;
                                 }
                                 break;
                             case 4:
                                 if (!(stillHittingLeft[3]))
                                 {
-                                    Console.WriteLine("RIGHT");
+                                    pub.SendEvent("RIGHT");
                                     stillHittingLeft[3] = true;
                                 }
                                 break;
@@ -196,6 +197,10 @@ namespace KINECTmania.kinectDataInput
                     }
                     else
                     {
+                        if (stillHitting[1] == true)
+                        {
+                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                        }
                         stillHitting[1] = false;
                     }
                     if (calDistance(handJoint, arrowLeft) < buttonSize)
@@ -204,6 +209,10 @@ namespace KINECTmania.kinectDataInput
                     }
                     else
                     {
+                        if (stillHitting[2] == true)
+                        {
+                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                        }
                         stillHitting[2] = false;
                     }
                     if (calDistance(handJoint, arrowRight) < buttonSize)
@@ -212,6 +221,10 @@ namespace KINECTmania.kinectDataInput
                     }
                     else
                     {
+                        if (stillHitting[3] == true)
+                        {
+                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                        }
                         stillHitting[3] = false;
                     }
                 }
