@@ -97,28 +97,32 @@ namespace KINECTmania.kinectDataInput
                             case 1:
                                 if (!(stillHittingRight[0]))
                                 {
-                                    pub.SendEvent("UP");
+                                    //UP
+                                    pub.SendEvent(1);
                                     stillHittingRight[0] = true;
                                 }
                                 break;
                             case 2:
                                 if (!(stillHittingRight[1]))
                                 {
-                                    pub.SendEvent("DOWN");
+                                    //DOWN
+                                    pub.SendEvent(2);
                                     stillHittingRight[1] = true;
                                 }
                                 break;
                             case 3:
                                 if (!(stillHittingRight[2]))
                                 {
-                                    pub.SendEvent("LEFT");
+                                    //LEFT
+                                    pub.SendEvent(3);
                                     stillHittingRight[2] = true;
                                 }
                                 break;
                             case 4:
                                 if (!(stillHittingRight[3]))
                                 {
-                                    pub.SendEvent("RIGHT");
+                                    //RIGHT
+                                    pub.SendEvent(4);
                                     stillHittingRight[3] = true;
                                 }
                                 break;
@@ -128,28 +132,28 @@ namespace KINECTmania.kinectDataInput
                             case 1:
                                 if (!(stillHittingLeft[0]))
                                 {
-                                    pub.SendEvent("UP");
+                                    pub.SendEvent(1);
                                     stillHittingLeft[0] = true;
                                 }
                                 break;
                             case 2:
                                 if (!(stillHittingLeft[1]))
                                 {
-                                    pub.SendEvent("DOWN");
+                                    pub.SendEvent(2);
                                     stillHittingLeft[1] = true;
                                 }
                                 break;
                             case 3:
                                 if (!(stillHittingLeft[2]))
                                 {
-                                    pub.SendEvent("LEFT");
+                                    pub.SendEvent(3);
                                     stillHittingLeft[2] = true;
                                 }
                                 break;
                             case 4:
                                 if (!(stillHittingLeft[3]))
                                 {
-                                    pub.SendEvent("RIGHT");
+                                    pub.SendEvent(4);
                                     stillHittingLeft[3] = true;
                                 }
                                 break;
