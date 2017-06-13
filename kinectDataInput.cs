@@ -53,6 +53,7 @@ public class kinectDataInput
             }
         }
     }
+    /*
     public static void Main(String[] args){
         kinectDataInput kdi = new kinectDataInput();
         while (true)
@@ -60,4 +61,5 @@ public class kinectDataInput
             
         }
     }
+    */
 }

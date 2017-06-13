@@ -38,7 +38,7 @@ namespace KINECTmania
             return list;
         }
 
-
+        /*
         public static void Main(String[] args)
         {
             Console.WriteLine("Starting up....");
@@ -51,6 +51,7 @@ namespace KINECTmania
                 Console.WriteLine("No lines read.");
             }
         }
+        */
 
     }
 }
