@@ -30,5 +30,10 @@ namespace KINECTmania.GUI
         {
             RaiseMenuStateChanged?.Invoke(this, e);
         }
+
+        private void BackToMainMenu_Click(object sender, RoutedEventArgs e)
+        {
+            OnRaiseMenuStateChanged(new MenuStateChanged(0));
+        }
     }
 }

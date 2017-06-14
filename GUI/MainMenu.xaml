@@ -9,8 +9,10 @@
       Title="Page1">
 
     <Grid MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}">
-        <Label Content="Main Menu" HorizontalAlignment="Left" Margin="114,10,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="EnterOptions" Content="Options" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Width="75" AutomationProperties.AccessKey="o" Click="EnterOptions_Click"/>
+        <Label Content="Main Menu" HorizontalAlignment="Left" Margin="814,27,0,0" VerticalAlignment="Top" FontSize="60"/>
+        <Button x:Name="EnterOptions" Content="Options" HorizontalAlignment="Left" Margin="846,430,0,0" VerticalAlignment="Top" Width="250" AutomationProperties.AccessKey="o" Click="EnterOptions_Click" FontSize="40" Height="70" TabIndex="-4"/>
+        <Button x:Name="EnterGameOptions" Content="Start Game!" HorizontalAlignment="Left" Margin="814,286,0,0" VerticalAlignment="Top" Width="312" AutomationProperties.AccessKey="s" FontSize="40" Height="100" TabIndex="0" Click="EnterGameOptions_Click"/>
+        <Button x:Name="ExitGame" Content="Exit" HorizontalAlignment="Left" Margin="1676,976,0,0" VerticalAlignment="Top" Width="250" AutomationProperties.AccessKey="e" FontSize="40" Height="70" Click="ExitGame_Click"/>
 
     </Grid>
 </Page>

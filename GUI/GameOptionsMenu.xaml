@@ -9,6 +9,13 @@
       Title="GameOptionsMenu">
 
     <Grid Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}">
-        
+        <Label Content="Game Options" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="60" Margin="800,10,0,0"/>
+        <Button x:Name="BackToMainMenu" Content="" HorizontalAlignment="Left" Height="125" Margin="10,921,0,0" VerticalAlignment="Top" Width="125" Click="BackToMainMenu_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="res/f_left.gif"/>
+            </Button.Background>
+        </Button>
+        <Button Content="Start Game!" HorizontalAlignment="Left" Margin="1626,976,0,0" VerticalAlignment="Top" Width="300" FontSize="40" Height="70" Click="Button_Click"/>
+
     </Grid>
 </Page>

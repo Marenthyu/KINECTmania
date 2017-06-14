@@ -28,14 +28,7 @@ namespace KINECTmania.GUI
 
         private void EnterOptions_Click(object sender, RoutedEventArgs e)
         {
-            OnRaiseMenuStateChanged(new MenuStateChanged(1));
-                /*
-                 * TODO: Diesen Code löschen. Hier soll stattdessen ein Event gefuert werden, welches
-                 * das aktuelle GameWindow veranlasst, den Content auf eine Page zu wechseln. Dieses
-                 * Event hat (codiert) die gewünschte Page zu enthalten.
-                 */
-        
-            
+            OnRaiseMenuStateChanged(new MenuStateChanged(1)); //Code for entering the options menu            
         }
 
         public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
@@ -43,5 +36,14 @@ namespace KINECTmania.GUI
             RaiseMenuStateChanged?.Invoke(this, e);
         }
 
+        private void ExitGame_Click(object sender, RoutedEventArgs e)
+        {
+            OnRaiseMenuStateChanged(new MenuStateChanged(-1)); //Code for closing the window
+        }
+
+        private void EnterGameOptions_Click(object sender, RoutedEventArgs e)
+        {
+            OnRaiseMenuStateChanged(new MenuStateChanged(2));
+        }
     }
 }

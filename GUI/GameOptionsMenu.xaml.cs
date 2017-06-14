@@ -29,11 +29,22 @@ namespace KINECTmania.GUI
         public GameOptionsMenu()
         {
             InitializeComponent();
+
         }
 
         public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
         {
             RaiseMenuStateChanged?.Invoke(this, e);
+        }
+
+        private void BackToMainMenu_Click(object sender, RoutedEventArgs e)
+        {
+            OnRaiseMenuStateChanged(new MenuStateChanged(0));
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            OnRaiseMenuStateChanged(new MenuStateChanged(3));
         }
     }
 }

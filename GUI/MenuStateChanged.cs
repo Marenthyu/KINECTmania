@@ -18,6 +18,13 @@ namespace KINECTmania.GUI
 
         public MenuStateChanged(int b)
         {
+            ///<summary>
+            /// 0: main menu
+            /// 1: options menu (changing volume, ...)
+            /// 2: game settings menu (changing bpm, song, ... just before start of the game)
+            /// 3: during game
+            /// -1: exiting the game
+            ///</summary>
             menuState = b;
         }
     }

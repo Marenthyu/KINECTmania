@@ -28,13 +28,16 @@ namespace KINECTmania.GUI
             menus[0] = new MainMenu();
             menus[1] = new OptionsMenu();
             menus[2] = new GameOptionsMenu();
-            //menus[3] = new GameMenu();
+            //menus[3] = new GameMenu(); - dieses Menü wure noch nicht implementiert!
 
             this.Content = menus[0];
 
             foreach(Menu publisher in menus)
             {
-                publisher.RaiseMenuStateChanged += HandleMenuStateChanged;
+                if (publisher != null)
+                {
+                    publisher.RaiseMenuStateChanged += HandleMenuStateChanged;
+                }
             }
             
         }
@@ -60,8 +63,11 @@ namespace KINECTmania.GUI
                     }
                     else
                     {
-                        Console.WriteLine("Info: menus[3] isn't implemented yet so you won't be able to access it too. Logical?");
+                        Console.WriteLine("Info: menus[3] isn't implemented yet so you won't be able to access it either. Logical?");
                     }
+                    break;
+                case -1:
+                    this.Close();
                     break;
                 default:
                     this.Content = menus[0];

@@ -9,6 +9,13 @@
       Title="Page2">
 
     <Grid Width="{DynamicResource {x:Static SystemParameters.MaximumWindowTrackWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}">
-        
+        <Label Content="Options" HorizontalAlignment="Left" Margin="866,10,0,0" VerticalAlignment="Top" FontSize="60"/>
+        <Button x:Name="BackToMainMenu" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Width="125" Margin="10,921,0,0" Height="125" Click="BackToMainMenu_Click" BorderBrush="{x:Null}">
+            <Button.Background>
+                <ImageBrush ImageSource="res/f_left.gif"/>
+            </Button.Background>
+            
+        </Button>
+
     </Grid>
 </Page>
