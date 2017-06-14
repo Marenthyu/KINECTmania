@@ -12,14 +12,7 @@ namespace KINECTmania.GUI
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
-    {
+    { 
 
-        
-        private void Application_Startup(object sender, StartupEventArgs e)
-        {
-            /**
-             *  Statt an der main-Methode herumzubasteln, wäre es besser, die Initialisierung des Programms (Kinect-Sensor, Gamelogik, ...) hier durchzuführen
-             */
-        }
     }
 }

@@ -18,34 +18,30 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für MainMenu.xaml
     /// </summary>
-    public partial class MainMenu : Page
+    public partial class MainMenu : Page, Menu
     {
-        GameWindow parent;
-        public MainMenu(GameWindow parentWindow)
+        public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
+        public MainMenu()
         {
             InitializeComponent();
-            GameWindow parent = parentWindow;
         }
 
         private void EnterOptions_Click(object sender, RoutedEventArgs e)
         {
-            /*
-             * Sollte es so gehen, werde ich alle Spiel-Menüs in WPF-Pages packen und diese via Buttons "verbinden"
-             */
-            OptionsMenu optionsMenu = new OptionsMenu();
-            if (parent != null) {
-                parent.Content = optionsMenu;
-            }
-            else
-            {
-                pa
+            OnRaiseMenuStateChanged(new MenuStateChanged(1));
                 /*
                  * TODO: Diesen Code löschen. Hier soll stattdessen ein Event gefuert werden, welches
                  * das aktuelle GameWindow veranlasst, den Content auf eine Page zu wechseln. Dieses
                  * Event hat (codiert) die gewünschte Page zu enthalten.
                  */
-            }
+        
             
         }
+
+        public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
+        {
+            RaiseMenuStateChanged?.Invoke(this, e);
+        }
+
     }
 }

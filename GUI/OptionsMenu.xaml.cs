@@ -18,11 +18,17 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für Page2.xaml
     /// </summary>
-    public partial class OptionsMenu : Page
+    public partial class OptionsMenu : Page, Menu
     {
+        public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         public OptionsMenu()
         {
             InitializeComponent();
+        }
+
+        public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
+        {
+            RaiseMenuStateChanged?.Invoke(this, e);
         }
     }
 }

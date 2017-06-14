@@ -23,11 +23,17 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für GameOptionsMenu.xaml
     /// </summary>
-    public partial class GameOptionsMenu : Page
+    public partial class GameOptionsMenu : Page, Menu
     {
+        public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         public GameOptionsMenu()
         {
             InitializeComponent();
+        }
+
+        public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
+        {
+            RaiseMenuStateChanged?.Invoke(this, e);
         }
     }
 }
