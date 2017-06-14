@@ -47,7 +47,7 @@ namespace KINECTmania.GameLogic
             enumerator.MoveNext();
             nextNote = enumerator.Current;
 
-            long songTime = testSong.GetLength() * 100;
+            long songTime = testSong.GetLength() * 1000;
             
             startTime = DateTime.Now;
             while ((elapsedTime = (long)(DateTime.Now - startTime).TotalMilliseconds) < songTime)
