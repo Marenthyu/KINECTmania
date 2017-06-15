@@ -2,34 +2,44 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Microsoft.Kinect;
-using System.Threading;
-namespace KINECTmania.kinectDataInput
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using System.IO;
+
+namespace KINECTmania.kinectProcessing
 {
     public class kinectDataInput
     {
         public static void Main(String[] args) {
             kinectDataInput kdi = new kinectDataInput();
-            bool keepRunning = true;
-            //keepRunnung will change be events(to start and stop the game)
-            while (keepRunning) {
-                kdi.initialiseKinect();
-            }
-            //Cleaning the reserved RAM here
-
+            kdi.Start();
         }
+
+        private bool keepRunningArrowDetection = false;
+        private bool keepRunningVideoRecording = false;
+        private bool[] keepRunning;
+
         private KinectSensor kSensor = null;
+
         private BodyFrameReader bodyFrameReader = null;
         private Body[] bodies = null;
+        private ColorFrameReader cfr = null;
+        private byte[] colorData;
+        private ColorImageFormat format;
+        private WriteableBitmap wbmp;
+        private BitmapSource bmpSource;
+        private Stream ColorFrameOutput;
+
+
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
         private float buttonSize = 0.3F;
-        Publisher pub = new Publisher();
+
+        ArrowHitPublisher arrowPub = new ArrowHitPublisher();
+        
         public kinectDataInput()
         {
-
-            //kinectEventHandler keh = new kinectEventHandler();
-            //Thread eventSlave = new Thread(keh.throwEvent);
             for (int i = 0; i < stillHittingLeft.Length; i++) {
                 stillHittingLeft[i] = false;
             }
@@ -37,6 +47,8 @@ namespace KINECTmania.kinectDataInput
             {
                 stillHittingRight[i] = false;
             }
+            keepRunning[0] = keepRunningArrowDetection;
+            keepRunning[1] = keepRunningVideoRecording;
             arrowUp.Position.X = 0.0F;
             arrowUp.Position.Y = 0.5F;
             arrowDown.Position.X = 0.0F;
@@ -45,8 +57,20 @@ namespace KINECTmania.kinectDataInput
             arrowLeft.Position.Y = 0.0F;
             arrowRight.Position.X = 0.5F;
             arrowRight.Position.Y = 0.0F;
+        }
 
-            initialiseKinect();
+        public void Start() {
+            this.keepRunningArrowDetection = true;
+            while (this.keepRunningArrowDetection) {
+                this.initialiseKinect();
+            }
+        }
+        public void Stop() {
+            this.keepRunningArrowDetection = false;
+            if (!(keepRunning[1]))
+            {
+                kSensor.Close();
+            }
         }
 
         private void initialiseKinect()
@@ -63,6 +87,13 @@ namespace KINECTmania.kinectDataInput
             {
                 bodyFrameReader.FrameArrived += Reader_FrameArrived;
             }
+      
+            var fd = kSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
+            uint frameSize = fd.BytesPerPixel * fd.LengthInPixels;
+            colorData = new byte[frameSize];
+            format = ColorImageFormat.Bgra;
+            cfr = kSensor.ColorFrameSource.OpenReader();
+            cfr.FrameArrived += Cfr_FrameArrived;
 
         }
         private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
@@ -98,7 +129,7 @@ namespace KINECTmania.kinectDataInput
                                 if (!(stillHittingRight[0]))
                                 {
                                     //UP
-                                    pub.SendEvent(1);
+                                    arrowPub.SendEvent(1);
                                     stillHittingRight[0] = true;
                                 }
                                 break;
@@ -106,7 +137,7 @@ namespace KINECTmania.kinectDataInput
                                 if (!(stillHittingRight[1]))
                                 {
                                     //DOWN
-                                    pub.SendEvent(2);
+                                    arrowPub.SendEvent(2);
                                     stillHittingRight[1] = true;
                                 }
                                 break;
@@ -114,7 +145,7 @@ namespace KINECTmania.kinectDataInput
                                 if (!(stillHittingRight[2]))
                                 {
                                     //LEFT
-                                    pub.SendEvent(3);
+                                    arrowPub.SendEvent(3);
                                     stillHittingRight[2] = true;
                                 }
                                 break;
@@ -122,7 +153,7 @@ namespace KINECTmania.kinectDataInput
                                 if (!(stillHittingRight[3]))
                                 {
                                     //RIGHT
-                                    pub.SendEvent(4);
+                                    arrowPub.SendEvent(4);
                                     stillHittingRight[3] = true;
                                 }
                                 break;
@@ -132,28 +163,28 @@ namespace KINECTmania.kinectDataInput
                             case 1:
                                 if (!(stillHittingLeft[0]))
                                 {
-                                    pub.SendEvent(1);
+                                    arrowPub.SendEvent(1);
                                     stillHittingLeft[0] = true;
                                 }
                                 break;
                             case 2:
                                 if (!(stillHittingLeft[1]))
                                 {
-                                    pub.SendEvent(2);
+                                    arrowPub.SendEvent(2);
                                     stillHittingLeft[1] = true;
                                 }
                                 break;
                             case 3:
                                 if (!(stillHittingLeft[2]))
                                 {
-                                    pub.SendEvent(3);
+                                    arrowPub.SendEvent(3);
                                     stillHittingLeft[2] = true;
                                 }
                                 break;
                             case 4:
                                 if (!(stillHittingLeft[3]))
                                 {
-                                    pub.SendEvent(4);
+                                    arrowPub.SendEvent(4);
                                     stillHittingLeft[3] = true;
                                 }
                                 break;
@@ -164,18 +195,32 @@ namespace KINECTmania.kinectDataInput
         }
 
 
-        private Joint defineArrows(Joint joint)
+        private bool defineArrows(short direction,Joint point)
         {
+            bool success = false;
 
             // This Function defines the Points where are the Buttons later on in the game
 
-            Joint arrowJoint = new Joint();
-            if (joint != null)
+            switch (direction)
             {
-                arrowJoint.Position.X = joint.Position.X;
-                arrowJoint.Position.Y = joint.Position.Y;
+                case 1:
+                    this.arrowUp.Position = point.Position;
+                    success = true;
+                    break;
+                case 2:
+                    this.arrowDown.Position = point.Position;
+                    success = true;
+                    break;
+                case 3:
+                    this.arrowLeft.Position = point.Position;
+                    success = true;
+                    break;
+                case 4:
+                    this.arrowRight.Position = point.Position;
+                    success = true;
+                    break;
             }
-            return arrowJoint;
+            return success;
         }
         private short buttonHit(Joint handJoint, bool[] stillHitting)
         {
@@ -191,7 +236,7 @@ namespace KINECTmania.kinectDataInput
                     }
                     else {
                         if (stillHitting[0] == true) {
-                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                            arrowPub.SendEvent(-1);
                         }
                         stillHitting[0] = false;
                     }
@@ -203,7 +248,7 @@ namespace KINECTmania.kinectDataInput
                     {
                         if (stillHitting[1] == true)
                         {
-                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                            arrowPub.SendEvent(-2);
                         }
                         stillHitting[1] = false;
                     }
@@ -215,7 +260,7 @@ namespace KINECTmania.kinectDataInput
                     {
                         if (stillHitting[2] == true)
                         {
-                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                            arrowPub.SendEvent(-3);
                         }
                         stillHitting[2] = false;
                     }
@@ -227,7 +272,7 @@ namespace KINECTmania.kinectDataInput
                     {
                         if (stillHitting[3] == true)
                         {
-                            //Here will be an Event which shows that the button will no langer be touched (for a long touch)
+                            arrowPub.SendEvent(-4);
                         }
                         stillHitting[3] = false;
                     }
@@ -258,6 +303,25 @@ namespace KINECTmania.kinectDataInput
             }
             double distance = Math.Sqrt((Math.Pow(xHelp, 2.0) + (Math.Pow(yHelp, 2.0))));
             return distance;
+        }
+
+        private void Cfr_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
+        {
+            if (e.FrameReference == null) return;
+
+            using (ColorFrame cf = e.FrameReference.AcquireFrame())
+            {
+                if (cf == null) return;
+                cf.CopyConvertedFrameDataToArray(colorData, format);
+                var fd = cf.FrameDescription;
+                
+                var bytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel) / 8;
+                var stride = bytesPerPixel * cf.FrameDescription.Width;
+
+                bmpSource = BitmapSource.Create(fd.Width, fd.Height, 96.0, 96.0, PixelFormats.Bgr32, null, colorData, stride);
+                
+                wbmp = new WriteableBitmap(bmpSource);
+            }
         }
     }
 }
