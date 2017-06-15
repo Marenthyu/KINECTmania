@@ -5,6 +5,7 @@ using Microsoft.Kinect;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace KINECTmania.kinectProcessing
 {
@@ -12,31 +13,29 @@ namespace KINECTmania.kinectProcessing
     {
         public static void Main(String[] args) {
             kinectDataInput kdi = new kinectDataInput();
+            kdi.Initialise();
             kdi.Start();
+
         }
 
         private bool keepRunningArrowDetection = false;
         private bool keepRunningVideoRecording = false;
-        private bool[] keepRunning;
+        private bool[] keepRunning = new bool[2];
 
         private KinectSensor kSensor = null;
-
-        private BodyFrameReader bodyFrameReader = null;
         private Body[] bodies = null;
-        private ColorFrameReader cfr = null;
-        private byte[] colorData;
-        private ColorImageFormat format;
         private WriteableBitmap wbmp;
         private BitmapSource bmpSource;
-        private Stream ColorFrameOutput;
 
 
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
         private float buttonSize = 0.3F;
+        MultiSourceFrameReader multiSource = null;
 
         ArrowHitPublisher arrowPub = new ArrowHitPublisher();
+        ColorFramePublisher framePub = new ColorFramePublisher();
         
         public kinectDataInput()
         {
@@ -58,11 +57,19 @@ namespace KINECTmania.kinectProcessing
             arrowRight.Position.X = 0.5F;
             arrowRight.Position.Y = 0.0F;
         }
+        public void Initialise() {
+            initialiseKinect();
+            Console.WriteLine("Initialisiert");
+        }
 
         public void Start() {
+            Console.WriteLine("Start");
             this.keepRunningArrowDetection = true;
             while (this.keepRunningArrowDetection) {
-                this.initialiseKinect();
+                if (multiSource != null)
+                {
+                    multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
+                }
             }
         }
         public void Stop() {
@@ -80,27 +87,33 @@ namespace KINECTmania.kinectProcessing
             {
                 //starts the Kinect
                 kSensor.Open();
+                Console.WriteLine("Kinect erkannt!");
             }
-            bodyFrameReader = kSensor.BodyFrameSource.OpenReader();
-
-            if (bodyFrameReader != null)
-            {
-                bodyFrameReader.FrameArrived += Reader_FrameArrived;
-            }
-      
-            var fd = kSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
-            uint frameSize = fd.BytesPerPixel * fd.LengthInPixels;
-            colorData = new byte[frameSize];
-            format = ColorImageFormat.Bgra;
-            cfr = kSensor.ColorFrameSource.OpenReader();
-            cfr.FrameArrived += Cfr_FrameArrived;
+            MultiSourceFrameReader multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body|FrameSourceTypes.Color);
 
         }
-        private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
+
+        private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
+        {
+            Console.WriteLine("Event mitbekommen");
+            if (e.FrameReference.AcquireFrame()!= null) {
+                if (e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame() != null)
+                {
+                    ArrowDetection(e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
+
+                    if (e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame() != null)
+                    {
+                        Imageprocessing(e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame(), e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
+                    }
+                }
+            }
+        }
+
+        private void ArrowDetection(BodyFrame bodyFrame)
         {
             bool dataReceived = false;
-            using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
-            {
+
+            Console.WriteLine("Arrow");
                 if (bodyFrame != null)
                 {
                     if (bodies == null)
@@ -111,17 +124,16 @@ namespace KINECTmania.kinectProcessing
                     dataReceived = true;
                 }
 
-            }
+            
             if (dataReceived)
             {
                 foreach (Body body in bodies)
                 {
+                    Console.WriteLine("Körper erkannt!");
                     if (body.IsTracked)
                     {
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
                         Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>(); 
-                        //Console.WriteLine("RIGHT: " + joints[JointType.HandRight].Position.X.ToString() + " | " + joints[JointType.HandRight].Position.Y.ToString());
-                        //Console.WriteLine("LEFT: " + joints[JointType.HandLeft].Position.X.ToString() + " | " + joints[JointType.HandLeft].Position.Y.ToString());
                         short rHit = buttonHit(joints[JointType.HandRight],stillHittingRight);
                         short lHit = buttonHit(joints[JointType.HandLeft],stillHittingLeft);
                         switch (rHit) {
@@ -305,23 +317,34 @@ namespace KINECTmania.kinectProcessing
             return distance;
         }
 
-        private void Cfr_FrameArrived(object sender, ColorFrameArrivedEventArgs e)
+        private void Imageprocessing(ColorFrame cf,BodyFrame bf)
         {
-            if (e.FrameReference == null) return;
+            Console.WriteLine("Image");
+            int width = cf.FrameDescription.Width;
+            int height = cf.FrameDescription.Height;
+            PixelFormat format = PixelFormats.Bgr32;
 
-            using (ColorFrame cf = e.FrameReference.AcquireFrame())
+            byte[] pixels = new byte[width * height * ((PixelFormats.Bgr32.BitsPerPixel + 7) / 8)];
+
+            if (cf.RawColorImageFormat == ColorImageFormat.Bgra)
             {
-                if (cf == null) return;
-                cf.CopyConvertedFrameDataToArray(colorData, format);
-                var fd = cf.FrameDescription;
-                
-                var bytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel) / 8;
-                var stride = bytesPerPixel * cf.FrameDescription.Width;
-
-                bmpSource = BitmapSource.Create(fd.Width, fd.Height, 96.0, 96.0, PixelFormats.Bgr32, null, colorData, stride);
-                
-                wbmp = new WriteableBitmap(bmpSource);
+                cf.CopyRawFrameDataToArray(pixels);
             }
+            else
+            {
+                cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
+            }
+
+            int stride = width * format.BitsPerPixel / 8;
+
+
+            bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
+            wbmp = new WriteableBitmap(bmpSource);
+
+            EllipseGeometry ellipse = new EllipseGeometry();
+
+            framePub.SendEvent(wbmp);
+            Console.WriteLine("Bild gesendet");
         }
     }
 }
