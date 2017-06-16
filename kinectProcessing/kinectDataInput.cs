@@ -24,6 +24,7 @@ namespace KINECTmania.kinectProcessing
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
+        private Joint LeftHand, RightHand = new Joint();
         private float buttonSize = 0.3F;
         MultiSourceFrameReader multiSource = null;
 
@@ -101,12 +102,11 @@ namespace KINECTmania.kinectProcessing
                 if (e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame() != null)
                 {
                     ArrowDetection(e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
-
-                    if (e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame() != null)
-                    {
-                        Imageprocessing(e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame(), e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
-                    }
                 }
+                if (e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame() != null)
+                {
+                    Imageprocessing(e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame());
+                }                
             }
         }
 
@@ -130,13 +130,16 @@ namespace KINECTmania.kinectProcessing
             {
                 foreach (Body body in bodies)
                 {
-                    Console.WriteLine("Körper erkannt!");
+                    
                     if (body.IsTracked)
                     {
+                        Console.WriteLine("Körper erkannt!");
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
                         Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>(); 
                         short rHit = buttonHit(joints[JointType.HandRight],stillHittingRight);
                         short lHit = buttonHit(joints[JointType.HandLeft],stillHittingLeft);
+                        this.LeftHand = joints[JointType.HandLeft];
+                        this.RightHand = joints[JointType.HandRight];
                         switch (rHit) {
                             case 1:
                                 if (!(stillHittingRight[0]))
@@ -318,12 +321,37 @@ namespace KINECTmania.kinectProcessing
             return distance;
         }
 
-        private void Imageprocessing(ColorFrame cf,BodyFrame bf)
+        private void Imageprocessing(ColorFrame cf)
         {
-            Console.WriteLine("Image");
+            Console.WriteLine("Imageprocessing");
             int width = cf.FrameDescription.Width;
             int height = cf.FrameDescription.Height;
             PixelFormat format = PixelFormats.Bgr32;
+            /* 
+            Still have to mark up the Arrows and the hands in the Image with a Canvas
+            https://github.com/LightBuzz/Kinect-Drawing/blob/master/KinectDrawing/KinectDrawing/MainWindow.xaml.cs
+            */
+            if (this.LeftHand.TrackingState != TrackingState.NotTracked) {
+                ColorSpacePoint cspLeft = this.kSensor.CoordinateMapper.MapCameraPointToColorSpace(this.LeftHand.Position);
+                if (!float.IsInfinity(cspLeft.X) && !float.IsInfinity(cspLeft.Y))
+                {
+                    //
+
+
+
+                }
+            }
+            if (this.RightHand.TrackingState != TrackingState.NotTracked) {
+                ColorSpacePoint cspRight = this.kSensor.CoordinateMapper.MapCameraPointToColorSpace(this.RightHand.Position);
+                if (!float.IsInfinity(cspRight.X) && !float.IsInfinity(cspRight.Y))
+                {
+                    //
+
+
+
+
+                }
+            }
 
             byte[] pixels = new byte[width * height * ((PixelFormats.Bgr32.BitsPerPixel + 7) / 8)];
 
@@ -336,14 +364,11 @@ namespace KINECTmania.kinectProcessing
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
 
-            //int stride = width * format.BitsPerPixel / 8;
-            //BitmapSource bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
-            //WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
+            int stride = width * format.BitsPerPixel / 8;
+            BitmapSource bmpSource = BitmapSource.Create(width, height, 96.0, 96.0, format, null, pixels, stride);
+            WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
 
 
-            /* 
-             Still have to mark up the Arrows and the hands in the Image with a Canvas
-             */
 
             writePixelsToStream(pixels);
             Console.WriteLine("Bild gesendet");
