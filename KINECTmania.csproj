@@ -93,7 +93,6 @@
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
-    <Compile Include="kinectProcessing\kinectColorFrameEventHandler.cs" />
     <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
     <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>

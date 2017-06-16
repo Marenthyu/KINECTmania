@@ -13,21 +13,14 @@ namespace KINECTmania.kinectProcessing
     {
         public static void Main(String[] args) {
             kinectDataInput kdi = new kinectDataInput();
-            kdi.Initialise();
             kdi.Start();
-
+            kdi.Stop();
         }
-
-        private bool keepRunningArrowDetection = false;
-        private bool keepRunningVideoRecording = false;
-        private bool[] keepRunning = new bool[2];
 
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
-        private WriteableBitmap wbmp;
-        private BitmapSource bmpSource;
-
-
+        private MemoryStream FrameStream;
+        private bool keepRunning = false;
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
@@ -35,7 +28,6 @@ namespace KINECTmania.kinectProcessing
         MultiSourceFrameReader multiSource = null;
 
         ArrowHitPublisher arrowPub = new ArrowHitPublisher();
-        ColorFramePublisher framePub = new ColorFramePublisher();
         
         public kinectDataInput()
         {
@@ -46,8 +38,6 @@ namespace KINECTmania.kinectProcessing
             {
                 stillHittingRight[i] = false;
             }
-            keepRunning[0] = keepRunningArrowDetection;
-            keepRunning[1] = keepRunningVideoRecording;
             arrowUp.Position.X = 0.0F;
             arrowUp.Position.Y = 0.5F;
             arrowDown.Position.X = 0.0F;
@@ -57,28 +47,33 @@ namespace KINECTmania.kinectProcessing
             arrowRight.Position.X = 0.5F;
             arrowRight.Position.Y = 0.0F;
         }
-        public void Initialise() {
-            initialiseKinect();
-            Console.WriteLine("Initialisiert");
-        }
 
         public void Start() {
+            if (kSensor == null || multiSource == null) { initialiseKinect(); }
             Console.WriteLine("Start");
-            this.keepRunningArrowDetection = true;
-            while (this.keepRunningArrowDetection) {
-                if (multiSource != null)
+            if (keepRunning != true)
+            {
+                keepRunning = true;
+                while (keepRunning)
                 {
-                    multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
+                    if (multiSource != null)
+                    {
+                        multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
+                    }
                 }
             }
         }
         public void Stop() {
-            this.keepRunningArrowDetection = false;
-            if (!(keepRunning[1]))
+            if (keepRunning != false)
             {
+                keepRunning = false;
+                multiSource.Dispose();
                 kSensor.Close();
+                FrameStream.Close();
             }
+
         }
+        private bool IsRunning() { return this.keepRunning; }
 
         private void initialiseKinect()
         {
@@ -88,9 +83,15 @@ namespace KINECTmania.kinectProcessing
                 //starts the Kinect
                 kSensor.Open();
                 Console.WriteLine("Kinect erkannt!");
+                Console.WriteLine($"Available: {kSensor.IsAvailable}");
+                Console.WriteLine($"UniqueKinectId: {kSensor.UniqueKinectId}");
             }
             MultiSourceFrameReader multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body|FrameSourceTypes.Color);
-
+            try
+            {
+                FrameStream = new MemoryStream();
+            }
+            catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
         }
 
         private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
@@ -335,16 +336,24 @@ namespace KINECTmania.kinectProcessing
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
 
-            int stride = width * format.BitsPerPixel / 8;
+            //int stride = width * format.BitsPerPixel / 8;
+            //BitmapSource bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
+            //WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
 
 
-            bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
-            wbmp = new WriteableBitmap(bmpSource);
+            /* 
+             Still have to mark up the Arrows and the hands in the Image with a Canvas
+             */
 
-            EllipseGeometry ellipse = new EllipseGeometry();
-
-            framePub.SendEvent(wbmp);
+            writePixelsToStream(pixels);
             Console.WriteLine("Bild gesendet");
+        }
+        private async void writePixelsToStream(byte[] pixels) {
+            try
+            {
+                await FrameStream.WriteAsync(pixels, 1024, pixels.Length);
+            }
+            catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
         }
     }
 }
