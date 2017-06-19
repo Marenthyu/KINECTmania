@@ -12,20 +12,32 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32; //Für OpenFielDialog
+using KINECTmania.GameLogic;
 
 namespace KINECTmania.GUI
 
    
 {
-    /*
-     * Songfile-Einlesen: In FileParser.cs. Dafür muss ein Event gefeuert werden. Default-Ordner festlegen!
-     */
+    public class KinectStreamRequested : EventArgs
+    {
+        
+    }
+
+    public interface KinectStreamRequestedPublisher
+    {
+        event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested;
+
+        void OnRaiseKinectStreamRequested(KinectStreamRequested k);
+    }
     /// <summary>
     /// Interaktionslogik für GameOptionsMenu.xaml
     /// </summary>
-    public partial class GameOptionsMenu : Page, Menu
+    public partial class GameOptionsMenu : Page, Menu, SongLoadedPublisher, KinectStreamRequestedPublisher
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
+        public event EventHandler<SongLoaded> RaiseSongLoaded;
+        public event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested;
         public GameOptionsMenu()
         {
             InitializeComponent();
@@ -37,14 +49,54 @@ namespace KINECTmania.GUI
             RaiseMenuStateChanged?.Invoke(this, e);
         }
 
+        public virtual void OnRaiseSongLoaded(SongLoaded s)
+        {
+            RaiseSongLoaded?.Invoke(this, s);
+        }
+
+        public virtual void OnRaiseKinectStreamRequested(KinectStreamRequested k)
+        {
+            RaiseKinectStreamRequested?.Invoke(this, k);
+        }
+
         private void BackToMainMenu_Click(object sender, RoutedEventArgs e)
         {
             OnRaiseMenuStateChanged(new MenuStateChanged(0));
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void StartGameBtn_Click(object sender, RoutedEventArgs e)
         {
+            OnRaiseKinectStreamRequested(new KinectStreamRequested());
             OnRaiseMenuStateChanged(new MenuStateChanged(3));
+
+        }
+
+        private void OpenSong(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "KINECTMania Song Files (*.kmsf)|*.kmsf|All files (*.*)|*.*";
+            ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (ofd.ShowDialog() == true) //is only true if user selects "Open" in the dialog
+            { 
+                Song s = new Song(ofd.FileName);
+                OnRaiseSongLoaded(new SongLoaded(s));
+                Console.WriteLine("Info: Song " + ofd.FileName + " successfully loaded!");
+                FileLocationMeasurer.Text = ofd.FileName;
+                this.StartGameBtn.IsEnabled = true;
+                ReactionTimeChanger.IsEnabled = true;
+            }
+        }
+
+        private void ReactionTimeChanger_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (ReactionTimeChanger.Value % 1000 != 0)
+            {
+                ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + " s";
+            }
+            else
+            {
+                ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + ",0 s";
+            }
         }
     }
 }

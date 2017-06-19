@@ -1,0 +1,19 @@
+﻿<Page x:Class="KINECTmania.GUI.GamePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:KINECTmania.GUI"
+      mc:Ignorable="d" 
+      d:DesignHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" d:DesignWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}"
+      Title="GamePage">
+
+    <Grid Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}">
+        <Image x:Name="KinectStremaVisualizer" HorizontalAlignment="Left" Height="1046" VerticalAlignment="Top" Width="1936" Source="res/defaultKinectBG.bmp" Stretch="None"/>
+        <Image x:Name="CountdownDisplayer5" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/5.gif" Visibility="Hidden"/>
+        <Image x:Name="CountdownDisplayer4" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/4.gif" Visibility="Hidden"/>
+        <Image x:Name="CountdownDisplayer3" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/3.gif" Visibility="Hidden"/>
+        <Image x:Name="CountdownDisplayer2" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/2.gif" Visibility="Hidden"/>
+        <Image x:Name="CountdownDisplayer1" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/1.gif" Visibility="Hidden"/>
+    </Grid>
+</Page>

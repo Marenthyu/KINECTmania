@@ -20,15 +20,21 @@ namespace KINECTmania.GUI
     public partial class GameWindow : Window
     {
         private Menu[] menus;
+
+        public Menu[] Menus{
+            get { return menus; }
+        }
         public GameWindow()
         {
             InitializeComponent();
 
             menus = new Menu[4];
+            GameOptionsMenu gom = new GameOptionsMenu();
+            GamePage gp = new GamePage();
             menus[0] = new MainMenu();
             menus[1] = new OptionsMenu();
-            menus[2] = new GameOptionsMenu();
-            //menus[3] = new GameMenu(); - dieses Menü wure noch nicht implementiert!
+            menus[2] = gom;
+            menus[3] = gp; //- dieses Menü wurde noch nicht vollständig implementiert!
 
             this.Content = menus[0];
 
@@ -39,6 +45,8 @@ namespace KINECTmania.GUI
                     publisher.RaiseMenuStateChanged += HandleMenuStateChanged;
                 }
             }
+
+            gp.setPublisher(gom);
             
         }
 

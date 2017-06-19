@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace KINECTmania.GUI
 {
-    public interface Menu
+    public interface SongLoadedPublisher
     {
-        event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
+        event EventHandler<SongLoaded> RaiseSongLoaded;
 
-        void OnRaiseMenuStateChanged(MenuStateChanged e);
-
+        void OnRaiseSongLoaded(SongLoaded e);
     }
 }

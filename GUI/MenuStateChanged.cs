@@ -23,7 +23,7 @@ namespace KINECTmania.GUI
             /// 1: options menu (changing volume, ...)
             /// 2: game settings menu (changing bpm, song, ... just before start of the game)
             /// 3: during game
-            /// -1: exiting the game
+            /// -1: exiting the game window
             ///</summary>
             menuState = b;
         }
