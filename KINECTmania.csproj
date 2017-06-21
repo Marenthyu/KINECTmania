@@ -98,7 +98,10 @@
     <Compile Include="GUI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\NotifyGameWindowIsBuilt.cs" />
+    <Compile Include="GUI\Events.cs" />
+    <Compile Include="GUI\GamePage.xaml.cs">
+      <DependentUpon>GamePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GUI\GameOptionsMenu.xaml.cs">
       <DependentUpon>GameOptionsMenu.xaml</DependentUpon>
     </Compile>
@@ -111,7 +114,6 @@
     <Compile Include="GUI\OptionsMenu.xaml.cs">
       <DependentUpon>OptionsMenu.xaml</DependentUpon>
     </Compile>
-    <Compile Include="kinectDataInput.cs" />
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
@@ -122,6 +124,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="GUI\GameOptionsMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\GamePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,6 +143,33 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\SummaryDE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\c_down.gif" />
+    <Resource Include="GUI\res\c_left.gif" />
+    <Resource Include="GUI\res\c_up.gif" />
+    <Resource Include="GUI\res\f_down.gif" />
+    <Resource Include="GUI\res\f_left.gif" />
+    <Resource Include="GUI\res\f_right.gif" />
+    <Resource Include="GUI\res\f_up.gif" />
+    <Resource Include="GUI\res\kmLogo.ico" />
+    <Resource Include="GUI\res\kmLogoSq.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\aSomewhatHelpfulFile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\defaultKinectBG.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\1.gif" />
+    <Resource Include="GUI\res\2.gif" />
+    <Resource Include="GUI\res\3.gif" />
+    <Resource Include="GUI\res\4.gif" />
+    <Resource Include="GUI\res\5.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
