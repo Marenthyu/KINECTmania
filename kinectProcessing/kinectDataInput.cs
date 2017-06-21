@@ -16,6 +16,7 @@ namespace KINECTmania.kinectProcessing
         public static void Main(String[] args) {
             KinectDataInput kdi = new KinectDataInput();
             kdi.Start();
+            
         }
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
@@ -26,7 +27,7 @@ namespace KINECTmania.kinectProcessing
         private bool[] stillHittingRight = new bool[4];
         private Joint LeftHand, RightHand = new Joint();
         private float buttonSize = 0.3F;
-        MultiSourceFrameReader multiSource = null;
+        private MultiSourceFrameReader multiSource = null;
 
         ArrowHitPublisher arrowPub = new ArrowHitPublisher();
         public KinectDataInput()
