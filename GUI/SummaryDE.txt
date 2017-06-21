@@ -11,3 +11,4 @@ Dateien:
  - MainMenu.xaml/.xaml.cs: Hier liegt das Hauptmenü, welches Zugriff auf all die weiteren Funktionen des Spiels liefert.
  - OptionsMenu.xaml/.xaml.cs: Das Optionsmanü, in dem Lautstärke und so eingestellt werden können.
  - GameOptionsMenu.xaml/.xaml.cs: In diesem Menü können die Spieleinstellungen festgelegt werden (z.B. BPM, Reaktionszeit, ...)
+ - GamePage.xaml/.xaml.cs: In dieser Seite läuft das eigentliche Spiel ab

@@ -33,11 +33,11 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für GameOptionsMenu.xaml
     /// </summary>
-    public partial class GameOptionsMenu : Page, Menu, SongLoadedPublisher, KinectStreamRequestedPublisher
+    public partial class GameOptionsMenu : Page, Menu, KinectStreamRequestedPublisher, GameOptionsSetter
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
-        public event EventHandler<SongLoaded> RaiseSongLoaded;
-        public event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested;
+        public event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested; //kinectDataInput hat schon eine Methode, die mir einen byte[]-Stream zurückgibt. Besser die nehmen.
+        public event EventHandler<GameOptionsSet> RaiseGameOptionsSet;
         public GameOptionsMenu()
         {
             InitializeComponent();
@@ -49,15 +49,14 @@ namespace KINECTmania.GUI
             RaiseMenuStateChanged?.Invoke(this, e);
         }
 
-        public virtual void OnRaiseSongLoaded(SongLoaded s)
-        {
-            RaiseSongLoaded?.Invoke(this, s);
-        }
-
         public virtual void OnRaiseKinectStreamRequested(KinectStreamRequested k)
         {
             RaiseKinectStreamRequested?.Invoke(this, k);
         }
+
+        public virtual void OnRaiseGameOptionsSet(GameOptionsSet g)
+        {
+            RaiseGameOptionsSet?.Invoke(this, g);        }
 
         private void BackToMainMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -66,6 +65,7 @@ namespace KINECTmania.GUI
 
         private void StartGameBtn_Click(object sender, RoutedEventArgs e)
         {
+            OnRaiseGameOptionsSet(new GameOptionsSet((int) ReactionTimeChanger.Value));
             OnRaiseKinectStreamRequested(new KinectStreamRequested());
             OnRaiseMenuStateChanged(new MenuStateChanged(3));
 
@@ -78,8 +78,6 @@ namespace KINECTmania.GUI
             ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             if (ofd.ShowDialog() == true) //is only true if user selects "Open" in the dialog
             { 
-                Song s = new Song(ofd.FileName);
-                OnRaiseSongLoaded(new SongLoaded(s));
                 Console.WriteLine("Info: Song " + ofd.FileName + " successfully loaded!");
                 FileLocationMeasurer.Text = ofd.FileName;
                 this.StartGameBtn.IsEnabled = true;

@@ -38,6 +38,7 @@ namespace KINECTmania.GUI
 
             this.Content = menus[0];
 
+            //Set Publishers
             foreach(Menu publisher in menus)
             {
                 if (publisher != null)
@@ -45,8 +46,7 @@ namespace KINECTmania.GUI
                     publisher.RaiseMenuStateChanged += HandleMenuStateChanged;
                 }
             }
-
-            gp.setPublisher(gom);
+            gp.setPublisherMenuStateChanged(gom);
             
         }
 

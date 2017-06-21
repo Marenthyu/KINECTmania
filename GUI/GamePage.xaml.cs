@@ -12,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using KINECTmania.GameLogic;
 
 namespace KINECTmania.GUI
 {
@@ -23,7 +22,6 @@ namespace KINECTmania.GUI
     public partial class GamePage : Page, Menu
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
-        private Song currentSong;
         private System.Windows.Threading.DispatcherTimer countdownTimer;
         private int secondsBeforeGameStarts = 5;
 
@@ -33,8 +31,26 @@ namespace KINECTmania.GUI
             countdownTimer = new System.Windows.Threading.DispatcherTimer(); //This timer will realize a countdown before the game starts, similiar to a "ready, set go!" before the start of a race
             countdownTimer.Tick += new EventHandler(countdownTimer_Tick);
             countdownTimer.Interval = new TimeSpan(0, 0, 1); //Timespan(hours, minutes, seconds)
+        }
 
-            countdownTimer.Start();
+        public void setPublisherMenuStateChanged(Menu g)
+        {
+            if (g != null)
+            {
+                g.RaiseMenuStateChanged += HandleMenuStateChanged;
+            }
+            else
+            {
+                throw new NullReferenceException();
+            }
+        }
+
+        void HandleMenuStateChanged(object sender, MenuStateChanged e)
+        {
+            if (e.MenuState == 3)
+            {
+                countdownTimer.Start();
+            }
         }
 
         private void countdownTimer_Tick(object sender, EventArgs e)
@@ -86,17 +102,6 @@ namespace KINECTmania.GUI
         public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
         {
             RaiseMenuStateChanged?.Invoke(this, e);
-        }
-
-        public void setPublisher(SongLoadedPublisher slp)
-        {
-            slp.RaiseSongLoaded += HandleSongLoaded;
-        }
-
-        void HandleSongLoaded(object sender, SongLoaded s)
-        {
-            currentSong = s.Song;
-            Console.WriteLine("Info: currentSong is set to " + s.Song.ToString());
         }
         
     }
