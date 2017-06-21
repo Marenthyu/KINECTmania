@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace KINECTmania.GameLogic
 {
-    class Note
+    public class Note
     {
         private long startTime;
         private short position;
@@ -25,12 +25,12 @@ namespace KINECTmania.GameLogic
             bool startSuccess = long.TryParse(parts[0], out startTime);
             if (!startSuccess)
             {
-                throw new FormatException(String.Format("Could not parse Note, invalid long for startTime: {0}", parts[0]));
+                throw new FormatException($"Could not parse Note, invalid long for startTime: {parts[0]}");
             }
             bool positionSuccess = short.TryParse(parts[1], out position);
             if (!positionSuccess)
             {
-                throw new FormatException(String.Format("Could not parse Note, invalid Int16 for position: {0}", parts[1]));
+                throw new FormatException($"Could not parse Note, invalid Int16 for position: {parts[1]}");
             }
             return new Note(startTime, position);
         }
@@ -43,6 +43,11 @@ namespace KINECTmania.GameLogic
         public short Position()
         {
             return this.position;
+        }
+
+        public override String ToString()
+        {
+            return $"Note[Start: {startTime}; Position: {position}]";
         }
     }
 }
