@@ -41,7 +41,5 @@ namespace KINECTmania
             return list;
         }
 
-        
-
     }
 }
