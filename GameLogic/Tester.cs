@@ -24,53 +24,53 @@ namespace KINECTmania.GameLogic
         private static DateTime startTime;
 
         [STAThread]
-        public static void Main(String[] args)
-        {
-            Console.WriteLine("Starting up....");
-            playMedia();
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.CheckFileExists = true;
-            ofd.Filter = "KINECTmania Song Files (*.kmsf)|*.kmsf";
-            DialogResult result = ofd.ShowDialog();
-            if (result.ToString() != "OK")
-            {
-                Console.WriteLine("Please select a File.");
-                return;
-            }
-            Console.WriteLine(ofd.FileName);
+        //public static void Main(String[] args)
+        //{
+        //    Console.WriteLine("Starting up....");
+        //    playMedia();
+        //    OpenFileDialog ofd = new OpenFileDialog();
+        //    ofd.CheckFileExists = true;
+        //    ofd.Filter = "KINECTmania Song Files (*.kmsf)|*.kmsf";
+        //    DialogResult result = ofd.ShowDialog();
+        //    if (result.ToString() != "OK")
+        //    {
+        //        Console.WriteLine("Please select a File.");
+        //        return;
+        //    }
+        //    Console.WriteLine(ofd.FileName);
 
-            testSong = new Song(ofd.FileName);
-            Console.WriteLine(testSong.ToString());
+        //    testSong = new Song(ofd.FileName);
+        //    Console.WriteLine(testSong.ToString());
 
-            notes = testSong.GetNotes();
-            enumerator = notes.GetEnumerator();
-            enumerator.MoveNext();
-            nextNote = enumerator.Current;
+        //    notes = testSong.GetNotes();
+        //    enumerator = notes.GetEnumerator();
+        //    enumerator.MoveNext();
+        //    nextNote = enumerator.Current;
 
-            long songTime = testSong.GetLength() * 1000;
+        //    long songTime = testSong.GetLength() * 1000;
             
-            startTime = DateTime.Now;
-            while ((elapsedTime = (long)(DateTime.Now - startTime).TotalMilliseconds) < songTime)
-            {
-                while (nextNote != null && nextNote.StartTime() < elapsedTime)
-                {
+        //    startTime = DateTime.Now;
+        //    while ((elapsedTime = (long)(DateTime.Now - startTime).TotalMilliseconds) < songTime)
+        //    {
+        //        while (nextNote != null && nextNote.StartTime() < elapsedTime)
+        //        {
 
-                    Console.WriteLine("Timestamp: {0}, Note: {1}", elapsedTime, nextNote);
-                    if (enumerator.MoveNext())
-                    {
-                        nextNote = enumerator.Current;
-                    }
-                    else
-                    {
-                        //t.Stop();
-                        Console.WriteLine("End of Song.");
-                        nextNote = null;
-                        break;
-                    }
+        //            Console.WriteLine("Timestamp: {0}, Note: {1}", elapsedTime, nextNote);
+        //            if (enumerator.MoveNext())
+        //            {
+        //                nextNote = enumerator.Current;
+        //            }
+        //            else
+        //            {
+        //                //t.Stop();
+        //                Console.WriteLine("End of Song.");
+        //                nextNote = null;
+        //                break;
+        //            }
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
 
         public static void playMedia()
         {

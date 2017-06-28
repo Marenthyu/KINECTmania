@@ -1,4 +1,4 @@
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -101,81 +101,86 @@
   <ItemGroup>
     <Compile Include="GameLogic\GameStateManager.cs" />
     <Compile Include="GameLogic\Tester.cs" />
-    <Compile Include="GUI\App.xaml.cs">
+    <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\Events.cs" />
-    <Compile Include="GUI\GamePage.xaml.cs">
+    <Compile Include="UI\Events.cs" />
+    <Compile Include="UI\GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\GameOptionsMenu.xaml.cs">
+    <Compile Include="UI\GameOptionsMenu.xaml.cs">
       <DependentUpon>GameOptionsMenu.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\GameWindow.xaml.cs">
+    <Compile Include="UI\GameWindow.xaml.cs">
       <DependentUpon>GameWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\MainMenu.xaml.cs">
+    <Compile Include="UI\MainMenu.xaml.cs">
       <DependentUpon>MainMenu.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\OptionsMenu.xaml.cs">
+    <Compile Include="UI\OptionsMenu.xaml.cs">
       <DependentUpon>OptionsMenu.xaml</DependentUpon>
     </Compile>
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
+    <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
+    <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="GUI\App.xaml">
+    <ApplicationDefinition Include="UI\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="GUI\GameOptionsMenu.xaml">
+    <Page Include="UI\GameOptionsMenu.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\GamePage.xaml">
+    <Page Include="UI\GamePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\GameWindow.xaml">
+    <Page Include="UI\GameWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\MainMenu.xaml">
+    <Page Include="UI\MainMenu.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\OptionsMenu.xaml">
+    <Page Include="UI\OptionsMenu.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="GUI\SummaryDE.txt" />
+    <Resource Include="UI\SummaryDE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="GUI\res\c_down.gif" />
-    <Resource Include="GUI\res\c_left.gif" />
-    <Resource Include="GUI\res\c_up.gif" />
-    <Resource Include="GUI\res\f_down.gif" />
-    <Resource Include="GUI\res\f_left.gif" />
-    <Resource Include="GUI\res\f_right.gif" />
-    <Resource Include="GUI\res\f_up.gif" />
-    <Resource Include="GUI\res\kmLogo.ico" />
-    <Resource Include="GUI\res\kmLogoSq.ico" />
+    <Resource Include="UI\res\c_down.gif" />
+    <Resource Include="UI\res\c_left.gif" />
+    <Resource Include="UI\res\c_up.gif" />
+    <Resource Include="UI\res\f_down.gif" />
+    <Resource Include="UI\res\f_left.gif" />
+    <Resource Include="UI\res\f_right.gif" />
+    <Resource Include="UI\res\f_up.gif" />
+    <Resource Include="UI\res\kmLogo.ico" />
+    <Resource Include="UI\res\kmLogoSq.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="GUI\res\aSomewhatHelpfulFile.txt" />
+    <Resource Include="UI\res\aSomewhatHelpfulFile.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="GUI\res\defaultKinectBG.bmp" />
+    <Resource Include="UI\res\defaultKinectBG.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="GUI\res\1.gif" />
-    <Resource Include="GUI\res\2.gif" />
-    <Resource Include="GUI\res\3.gif" />
-    <Resource Include="GUI\res\4.gif" />
-    <Resource Include="GUI\res\5.gif" />
+    <Resource Include="UI\res\1.gif" />
+    <Resource Include="UI\res\2.gif" />
+    <Resource Include="UI\res\3.gif" />
+    <Resource Include="UI\res\4.gif" />
+    <Resource Include="UI\res\5.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="UI\res\c_right.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
