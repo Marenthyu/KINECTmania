@@ -11,11 +11,6 @@ namespace KINECTmania.kinectProcessing
 {
     public class kinectDataInput
     {
-        public static void Main(String[] args) {
-            kinectDataInput kdi = new kinectDataInput();
-            kdi.Start();
-            kdi.Stop();
-        }
 
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
@@ -29,7 +24,7 @@ namespace KINECTmania.kinectProcessing
         private MultiSourceFrameReader multiSource = null;
 
         ArrowHitPublisher arrowPub = new ArrowHitPublisher();
-        public KinectDataInput()
+        public kinectDataInput()
         {
             for (int i = 0; i < stillHittingLeft.Length; i++) {
                 stillHittingLeft[i] = false;
@@ -354,12 +349,12 @@ namespace KINECTmania.kinectProcessing
             }
 
             WritePixelsToStream(pixels);
-            canvas.DrawPoint(this.LeftHand);
-            canvas.DrawPoint(this.RightHand);
-            canvas.DrawPoint(this.arrowUp);
-            canvas.DrawPoint(this.arrowDown);
-            canvas.DrawPoint(this.arrowLeft);
-            canvas.DrawPoint(this.arrowRight);
+            //canvas.DrawPoint(this.LeftHand);
+            //canvas.DrawPoint(this.RightHand);
+            //canvas.DrawPoint(this.arrowUp);
+            //canvas.DrawPoint(this.arrowDown);
+            //canvas.DrawPoint(this.arrowLeft);
+            //canvas.DrawPoint(this.arrowRight);
             Console.WriteLine("Bild gesendet");
 
         }
