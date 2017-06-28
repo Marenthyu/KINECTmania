@@ -1,0 +1,14 @@
+﻿In diesem Ordner geht es hauptsächlich um die GUI des KINECTMania-Spiels. Hier sind also die ganzen Pages definiert und so.
+
+Jedes Menü wird über eine eigene Page realisiert, welches nur entsprechend auf das Fenser geklatscht wird. Dies wird über das MenuStateChanged-Event realisiert. Leider muss so jede Page von Anfang an 
+in den Hintergrund geladen werden... Da der Kinect-Datenstrom aber nur bei Bedarf fließt, sollte dies kein großes Performance-Hindernis sein, zumal die Menüs einfach aufgebaut sind.
+
+Dateien:
+
+ - App.xaml/.xaml.cs: Hier erfolgt der Start des Programms - die entsprechende Main-Methode wird beim Kompilieren generiert. Programmspezifische Module o.Ä. sollten über die App.Startup-Methode
+		geladen werden.
+ - GameWindow.xaml/.xaml.cs: Das Window, was geöffnet wird. Enthält nichts weiter.
+ - MainMenu.xaml/.xaml.cs: Hier liegt das Hauptmenü, welches Zugriff auf all die weiteren Funktionen des Spiels liefert.
+ - OptionsMenu.xaml/.xaml.cs: Das Optionsmanü, in dem Lautstärke und so eingestellt werden können.
+ - GameOptionsMenu.xaml/.xaml.cs: In diesem Menü können die Spieleinstellungen festgelegt werden (z.B. BPM, Reaktionszeit, ...)
+ - GamePage.xaml/.xaml.cs: In dieser Seite läuft das eigentliche Spiel ab

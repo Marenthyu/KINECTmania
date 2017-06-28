@@ -8,7 +8,7 @@ using System.Text;
 
 namespace KINECTmania.GameLogic
 {
-    class Song
+    public class Song
     {
         private List<Note> notes;
         private String songTitle, songArtist, songFile;

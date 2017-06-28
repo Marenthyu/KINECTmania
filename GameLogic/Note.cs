@@ -5,7 +5,7 @@ using System.Text;
 
 namespace KINECTmania.GameLogic
 {
-    class Note
+    public class Note
     {
         private long startTime;
         private short position;

@@ -3,6 +3,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{BC5508DE-E556-4E86-AF8A-85C02E4404E6}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>WinExe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>WindowsApplication</AssemblyName>
@@ -36,17 +37,21 @@
     <RootNamespace>KINECTmania</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Kinect, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\NAudio.1.8.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Workflow.ComponentModel" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
@@ -95,12 +100,82 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameLogic\GameStateManager.cs" />
+    <Compile Include="GameLogic\Tester.cs" />
+    <Compile Include="GUI\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Events.cs" />
+    <Compile Include="GUI\GamePage.xaml.cs">
+      <DependentUpon>GamePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\GameOptionsMenu.xaml.cs">
+      <DependentUpon>GameOptionsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\GameWindow.xaml.cs">
+      <DependentUpon>GameWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\MainMenu.xaml.cs">
+      <DependentUpon>MainMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\OptionsMenu.xaml.cs">
+      <DependentUpon>OptionsMenu.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
-    <Compile Include="GameLogic\Tester.cs" />
-    <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
-    <Compile Include="kinectProcessing\kinectDataInput.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="GUI\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="GUI\GameOptionsMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\GamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\GameWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\MainMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\OptionsMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\SummaryDE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\c_down.gif" />
+    <Resource Include="GUI\res\c_left.gif" />
+    <Resource Include="GUI\res\c_up.gif" />
+    <Resource Include="GUI\res\f_down.gif" />
+    <Resource Include="GUI\res\f_left.gif" />
+    <Resource Include="GUI\res\f_right.gif" />
+    <Resource Include="GUI\res\f_up.gif" />
+    <Resource Include="GUI\res\kmLogo.ico" />
+    <Resource Include="GUI\res\kmLogoSq.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\aSomewhatHelpfulFile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\defaultKinectBG.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="GUI\res\1.gif" />
+    <Resource Include="GUI\res\2.gif" />
+    <Resource Include="GUI\res\3.gif" />
+    <Resource Include="GUI\res\4.gif" />
+    <Resource Include="GUI\res\5.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

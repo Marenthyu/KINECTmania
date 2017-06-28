@@ -6,18 +6,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
 
 namespace KINECTmania.kinectProcessing
 {
-    public class KinectDataInput
+    public class kinectDataInput
     {
         public static void Main(String[] args) {
-            KinectDataInput kdi = new KinectDataInput();
+            kinectDataInput kdi = new kinectDataInput();
             kdi.Start();
-            
+            kdi.Stop();
         }
+
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
         private MemoryStream FrameStream;
@@ -354,37 +353,6 @@ namespace KINECTmania.kinectProcessing
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
 
-            //int stride = width * format.BitsPerPixel / 8;
-            //BitmapSource bmpSource = BitmapSource.Create(width, height, 96.0, 96.0, format, null, pixels, stride);
-            //WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
-            //try
-            //{
-            //    if (this.LeftHand.TrackingState != TrackingState.NotTracked) {
-            //    ColorSpacePoint cspLeft = this.kSensor.CoordinateMapper.MapCameraPointToColorSpace(this.LeftHand.Position);
-            //    if (!float.IsInfinity(cspLeft.X) && !float.IsInfinity(cspLeft.Y))
-            //    {
-                        
-            //    }
-            //}
-            //if (this.RightHand.TrackingState != TrackingState.NotTracked) {
-            //    ColorSpacePoint cspRight = this.kSensor.CoordinateMapper.MapCameraPointToColorSpace(this.RightHand.Position);
-            //    if (!float.IsInfinity(cspRight.X) && !float.IsInfinity(cspRight.Y))
-            //    {
-            //        Int32Rect rectHandRight = new Int32Rect(Int32.Parse(cspRight.X.ToString()), Int32.Parse(cspRight.Y.ToString()), 30, 30);
-            //        wbmp.WritePixels(rectHandRight, pixels, 1, 0);
-            //    }
-            //}
-
-            //    Int32Rect rectUP = new Int32Rect(Int32.Parse(arrowUp.Position.X.ToString()), Int32.Parse(arrowUp.Position.Y.ToString()), 30, 30);
-            //    wbmp.WritePixels(rectUP, pixels, 1, 0);
-            //    Int32Rect rectDOWN = new Int32Rect(Int32.Parse(arrowDown.Position.X.ToString()), Int32.Parse(arrowDown.Position.Y.ToString()), 30, 30);
-            //    wbmp.WritePixels(rectDOWN, pixels, 1, 0);
-            //    Int32Rect rectLEFT = new Int32Rect(Int32.Parse(arrowLeft.Position.X.ToString()), Int32.Parse(arrowLeft.Position.Y.ToString()), 30, 30);
-            //    wbmp.WritePixels(rectLEFT, pixels, 1, 0);
-            //    Int32Rect rectRIGHT = new Int32Rect(Int32.Parse(arrowRight.Position.X.ToString()), Int32.Parse(arrowRight.Position.Y.ToString()), 30, 30);
-            //    wbmp.WritePixels(rectRIGHT, pixels, 1, 0);
-            //}
-            //catch (Exception) {  }
             WritePixelsToStream(pixels);
             canvas.DrawPoint(this.LeftHand);
             canvas.DrawPoint(this.RightHand);
