@@ -37,6 +37,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Kinect, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\NAudio.1.8.0\lib\net35\NAudio.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -82,6 +85,7 @@
     <None Include=".vs\slnx.sqlite" />
     <None Include=".vs\VSWorkspaceState.json" />
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
@@ -90,9 +94,11 @@
     <Folder Include=".git\refs\tags\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameLogic\GameStateManager.cs" />
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
+    <Compile Include="GameLogic\Tester.cs" />
     <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
     <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>
