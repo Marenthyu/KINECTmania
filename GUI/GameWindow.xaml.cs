@@ -47,9 +47,11 @@ namespace KINECTmania.GUI
                 }
             }
             gp.setPublisherMenuStateChanged(gom);
+            gp.setSongLoadedPublisher(gom);
             
         }
 
+        #region Change menu page
 
         void HandleMenuStateChanged(object sender, MenuStateChanged e)
         {
@@ -83,8 +85,8 @@ namespace KINECTmania.GUI
                     break;
             }
         }
-        
-        
+
+        #endregion
 
     }
     
