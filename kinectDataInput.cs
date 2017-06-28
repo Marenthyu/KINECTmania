@@ -1,4 +1,4 @@
-﻿using Microsoft.Kinect;
+using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -53,11 +53,11 @@ public class kinectDataInput
             }
         }
     }
-    public static void Main(String[] args){
+/*    public static void Main(String[] args){
         kinectDataInput kdi = new kinectDataInput();
         while (true)
         {
             
         }
-    }
+    }*/
 }
