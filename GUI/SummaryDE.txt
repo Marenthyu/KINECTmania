@@ -12,3 +12,4 @@ Dateien:
  - OptionsMenu.xaml/.xaml.cs: Das Optionsmanü, in dem Lautstärke und so eingestellt werden können.
  - GameOptionsMenu.xaml/.xaml.cs: In diesem Menü können die Spieleinstellungen festgelegt werden (z.B. BPM, Reaktionszeit, ...)
  - GamePage.xaml/.xaml.cs: In dieser Seite läuft das eigentliche Spiel ab
+ - Extensions.cs: Gefunden auf http://pterneas.com/2014/03/13/kinect-for-windows-version-2-body-tracking/ (zuletzt abgerufen: 28. Juni 2017, 10:50 Uhr)

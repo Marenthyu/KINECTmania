@@ -12,32 +12,23 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Microsoft.Win32; //Für OpenFielDialog
+using Microsoft.Win32; //Für OpenFileDialog
 using KINECTmania.GameLogic;
 
 namespace KINECTmania.GUI
 
    
 {
-    public class KinectStreamRequested : EventArgs
-    {
-        
-    }
-
-    public interface KinectStreamRequestedPublisher
-    {
-        event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested;
-
-        void OnRaiseKinectStreamRequested(KinectStreamRequested k);
-    }
+    
     /// <summary>
     /// Interaktionslogik für GameOptionsMenu.xaml
     /// </summary>
-    public partial class GameOptionsMenu : Page, Menu, KinectStreamRequestedPublisher, GameOptionsSetter
+    public partial class GameOptionsMenu : Page, Menu, KinectStreamRequestedPublisher, GameOptionsSetter, SongLoadedPublisher
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         public event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested; //kinectDataInput hat schon eine Methode, die mir einen byte[]-Stream zurückgibt. Besser die nehmen.
         public event EventHandler<GameOptionsSet> RaiseGameOptionsSet;
+        public event EventHandler<SongLoaded> RaiseSongLoaded;
         public GameOptionsMenu()
         {
             InitializeComponent();
@@ -56,7 +47,13 @@ namespace KINECTmania.GUI
 
         public virtual void OnRaiseGameOptionsSet(GameOptionsSet g)
         {
-            RaiseGameOptionsSet?.Invoke(this, g);        }
+            RaiseGameOptionsSet?.Invoke(this, g);
+        }
+
+        public virtual void OnRaiseSongLoaded(SongLoaded s)
+        {
+            RaiseSongLoaded?.Invoke(this, s);
+        }
 
         private void BackToMainMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -82,12 +79,13 @@ namespace KINECTmania.GUI
                 FileLocationMeasurer.Text = ofd.FileName;
                 this.StartGameBtn.IsEnabled = true;
                 ReactionTimeChanger.IsEnabled = true;
+                OnRaiseSongLoaded(new SongLoaded(new Song(ofd.FileName)));
             }
         }
 
         private void ReactionTimeChanger_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (ReactionTimeChanger.Value % 1000 != 0)
+            if (ReactionTimeChanger.Value % 1000 != 0) //Damit ich immer das Format "_,_ s" habe
             {
                 ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + " s";
             }

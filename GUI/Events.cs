@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KINECTmania.GameLogic;
 
 namespace KINECTmania.GUI
 {
@@ -52,9 +53,9 @@ namespace KINECTmania.GUI
             this.ms = ms;
         }
 
-        public GameOptionsSet(float s)
+        public GameOptionsSet(float sec)
         {
-            this.ms = (int) s * 1000; //Convert to ms (by multiplying by 1000) and then truncating the float
+            this.ms = (int) (sec * 1000); //Convert to ms (by multiplying by 1000) and then truncating the float
         }
     
     }
@@ -63,5 +64,39 @@ namespace KINECTmania.GUI
     {
         event EventHandler<GameOptionsSet> RaiseGameOptionsSet;
         void OnRaiseGameOptionsSet(GameOptionsSet g);
+    }
+
+    public class SongLoaded : EventArgs
+    {
+        private Song loadedSong;
+
+        public Song LoadedSong
+        {
+            get { return loadedSong; }
+            set { loadedSong = value; }
+        }
+
+        public SongLoaded(Song s)
+        {
+            loadedSong = s;
+        }
+    }
+
+    public interface SongLoadedPublisher
+    {
+        event EventHandler<SongLoaded> RaiseSongLoaded;
+        void OnRaiseSongLoaded(SongLoaded s);
+    }
+
+    public class KinectStreamRequested : EventArgs
+    {
+
+    }
+
+    public interface KinectStreamRequestedPublisher
+    {
+        event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested;
+
+        void OnRaiseKinectStreamRequested(KinectStreamRequested k);
     }
 }
