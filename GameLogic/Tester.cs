@@ -27,7 +27,7 @@ namespace KINECTmania.GameLogic
         public static void Main(String[] args)
         {
             Console.WriteLine("Starting up....");
-            playMedia();
+            PlayMedia();
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.CheckFileExists = true;
             ofd.Filter = "KINECTmania Song Files (*.kmsf)|*.kmsf";
@@ -72,7 +72,7 @@ namespace KINECTmania.GameLogic
             }
         }
 
-        public static void playMedia()
+        public static void PlayMedia()
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.CheckFileExists = true;
