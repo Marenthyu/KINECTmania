@@ -15,61 +15,18 @@ namespace KINECTmania.GameLogic
 {
     class Tester
     {
-        private static long elapsedTime = 0;
-        private static List<Note> notes;
-        private static List<Note>.Enumerator enumerator;
-        private static Note nextNote;
-        private static Song testSong;
-        private static System.Timers.Timer t = new Timer(1);
-        private static DateTime startTime;
 
         [STAThread]
         public static void Main(String[] args)
         {
-            Console.WriteLine("Starting up....");
-            playMedia();
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.CheckFileExists = true;
-            ofd.Filter = "KINECTmania Song Files (*.kmsf)|*.kmsf";
-            DialogResult result = ofd.ShowDialog();
-            if (result.ToString() != "OK")
-            {
-                Console.WriteLine("Please select a File.");
-                return;
-            }
-            Console.WriteLine(ofd.FileName);
+            GameStateManager gms = new GameStateManager();
+            gms.RaiseGameEvent += GmsOnRaiseGameEvent;
+            gms.RaiseDummyEvent();
+        }
 
-            testSong = new Song(ofd.FileName);
-            Console.WriteLine(testSong.ToString());
-
-            notes = testSong.GetNotes();
-            enumerator = notes.GetEnumerator();
-            enumerator.MoveNext();
-            nextNote = enumerator.Current;
-
-            long songTime = testSong.GetLength() * 1000;
-            
-            startTime = DateTime.Now;
-            while ((elapsedTime = (long)(DateTime.Now - startTime).TotalMilliseconds) < songTime)
-            {
-                while (nextNote != null && nextNote.StartTime() < elapsedTime)
-                {
-
-                    Console.WriteLine("Timestamp: {0}, Note: {1}", elapsedTime, nextNote);
-                    if (enumerator.MoveNext())
-                    {
-                        nextNote = enumerator.Current;
-                    }
-                    else
-                    {
-                        //t.Stop();
-                        Console.WriteLine("End of Song.");
-                        nextNote = null;
-                        break;
-                    }
-
-                }
-            }
+        private static void GmsOnRaiseGameEvent(object sender, GameEventArgs gameEventArgs)
+        {
+            Console.WriteLine("Got event. Note: " + gameEventArgs.Note + "; Accuracy: " + gameEventArgs.Accuracy + "; Points: " + gameEventArgs.Points);
         }
 
         public static void playMedia()

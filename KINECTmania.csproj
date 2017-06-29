@@ -1,4 +1,4 @@
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -35,6 +35,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>KINECTmania</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>WpfApplication1.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -123,6 +126,8 @@
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
+    <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
+    <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="GUI\App.xaml">
