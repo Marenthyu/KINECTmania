@@ -6,17 +6,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Forms;
 
 namespace KINECTmania.kinectProcessing
 {
-    public class kinectDataInput
+    public class KinectDataInput
     {
-        public static void Main(String[] args) {
-            kinectDataInput kdi = new kinectDataInput();
-            kdi.Start();
-            kdi.Stop();
-        }
-
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
         private MemoryStream FrameStream;
@@ -28,10 +24,11 @@ namespace KINECTmania.kinectProcessing
         private float buttonSize = 0.3F;
         private MultiSourceFrameReader multiSource = null;
 
-        ArrowHitPublisher arrowPub = new ArrowHitPublisher();
+        public ArrowHitPublisher arrowPub = new ArrowHitPublisher();
         public KinectDataInput()
         {
-            for (int i = 0; i < stillHittingLeft.Length; i++) {
+            for (int i = 0; i < stillHittingLeft.Length; i++)
+            {
                 stillHittingLeft[i] = false;
             }
             for (int i = 0; i < stillHittingRight.Length; i++)
@@ -49,9 +46,9 @@ namespace KINECTmania.kinectProcessing
         }
         public MemoryStream GetFrameStream() { return this.FrameStream; }
 
-        public void Start() {
+        public void Start()
+        {
             if (kSensor == null || multiSource == null) { InitialiseKinect(); }
-            Console.WriteLine("Start");
             if (keepRunning != true)
             {
                 keepRunning = true;
@@ -64,7 +61,8 @@ namespace KINECTmania.kinectProcessing
                 }
             }
         }
-        public void Stop() {
+        public void Stop()
+        {
             if (keepRunning != false)
             {
                 keepRunning = false;
@@ -86,7 +84,7 @@ namespace KINECTmania.kinectProcessing
                 Console.WriteLine($"Available: {kSensor.IsAvailable}");
                 Console.WriteLine($"UniqueKinectId: {kSensor.UniqueKinectId}");
             }
-            multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body|FrameSourceTypes.Color);
+            multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body | FrameSourceTypes.Color);
             try
             {
                 FrameStream = new MemoryStream();
@@ -96,8 +94,8 @@ namespace KINECTmania.kinectProcessing
 
         private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            Console.WriteLine("Event mitbekommen");
-            if (e.FrameReference.AcquireFrame()!= null) {
+            if (e.FrameReference.AcquireFrame() != null)
+            {
                 if (e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame() != null)
                 {
                     ArrowDetection(e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
@@ -105,48 +103,46 @@ namespace KINECTmania.kinectProcessing
                 if (e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame() != null)
                 {
                     Imageprocessing(e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame());
-                }                
+                }
             }
         }
 
         private void ArrowDetection(BodyFrame bodyFrame)
         {
             bool dataReceived = false;
-
-            Console.WriteLine("Arrow");
-                if (bodyFrame != null)
-                {
-                    if (bodies == null)
-                    {
-                        bodies = new Body[bodyFrame.BodyCount];
-                    }
-                    bodyFrame.GetAndRefreshBodyData(bodies);
-                    dataReceived = true;
-                }
-
             
+            if (bodyFrame != null)
+            {
+                if (bodies == null)
+                {
+                    bodies = new Body[bodyFrame.BodyCount];
+                }
+                bodyFrame.GetAndRefreshBodyData(bodies);
+                dataReceived = true;
+            }
+
+
             if (dataReceived)
             {
                 foreach (Body body in bodies)
                 {
-                    
+
                     if (body.IsTracked)
                     {
-                        Console.WriteLine("Körper erkannt!");
                         IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-                        Dictionary<JointType, System.Windows.Point> jointPoints = new Dictionary<JointType, System.Windows.Point>(); 
-                        short rHit = ButtonHit(joints[JointType.HandRight],stillHittingRight);
-                        short lHit = ButtonHit(joints[JointType.HandLeft],stillHittingLeft);
+                        Dictionary<JointType, System.Windows.Point> jointPoints = new Dictionary<JointType, System.Windows.Point>();
+                        short rHit = ButtonHit(joints[JointType.HandRight], stillHittingRight);
+                        short lHit = ButtonHit(joints[JointType.HandLeft], stillHittingLeft);
                         this.LeftHand = joints[JointType.HandLeft];
                         this.RightHand = joints[JointType.HandRight];
-                        switch (rHit) {
+                        switch (rHit)
+                        {
                             case 1:
                                 if (!(stillHittingRight[0]))
                                 {
                                     //UP
                                     arrowPub.SendEvent(1);
                                     stillHittingRight[0] = true;
-                                    Console.WriteLine("UPr");
                                 }
                                 break;
                             case 2:
@@ -155,7 +151,6 @@ namespace KINECTmania.kinectProcessing
                                     //DOWN
                                     arrowPub.SendEvent(2);
                                     stillHittingRight[1] = true;
-                                    Console.WriteLine("DOWNr");
                                 }
                                 break;
                             case 3:
@@ -164,7 +159,6 @@ namespace KINECTmania.kinectProcessing
                                     //LEFT
                                     arrowPub.SendEvent(3);
                                     stillHittingRight[2] = true;
-                                    Console.WriteLine("LEFTr");
                                 }
                                 break;
                             case 4:
@@ -173,7 +167,6 @@ namespace KINECTmania.kinectProcessing
                                     //RIGHT
                                     arrowPub.SendEvent(4);
                                     stillHittingRight[3] = true;
-                                    Console.WriteLine("RIGHTr");
                                 }
                                 break;
                         }
@@ -212,8 +205,9 @@ namespace KINECTmania.kinectProcessing
                 }
             }
         }
-        public void DefineArrowsRightHand(short s) {
-            Joint p =  this.RightHand;
+        public void DefineArrowsRightHand(short s)
+        {
+            Joint p = this.RightHand;
             DefineArrows(s, p);
         }
 
@@ -223,7 +217,7 @@ namespace KINECTmania.kinectProcessing
             DefineArrows(s, p);
         }
 
-        private bool DefineArrows(short direction,Joint point)
+        private bool DefineArrows(short direction, Joint point)
         {
             bool success = false;
 
@@ -262,8 +256,10 @@ namespace KINECTmania.kinectProcessing
                         buttonNumber = 1;
 
                     }
-                    else {
-                        if (stillHitting[0] == true) {
+                    else
+                    {
+                        if (stillHitting[0] == true)
+                        {
                             arrowPub.SendEvent(-1);
                         }
                         stillHitting[0] = false;
@@ -320,13 +316,16 @@ namespace KINECTmania.kinectProcessing
             {
                 xHelp = hand.Position.X - button.Position.X;
             }
-            else {
+            else
+            {
                 xHelp = button.Position.X - hand.Position.X;
             }
-            if ((hand.Position.Y - button.Position.Y) >= 0) {
+            if ((hand.Position.Y - button.Position.Y) >= 0)
+            {
                 yHelp = hand.Position.Y - button.Position.Y;
             }
-            else {
+            else
+            {
                 yHelp = button.Position.Y - hand.Position.Y;
             }
             double distance = Math.Sqrt((Math.Pow(xHelp, 2.0) + (Math.Pow(yHelp, 2.0))));
@@ -339,11 +338,9 @@ namespace KINECTmania.kinectProcessing
             int width = cf.FrameDescription.Width;
             int height = cf.FrameDescription.Height;
             PixelFormat format = PixelFormats.Bgr32;
-            /* 
-            Still have to mark up the Arrows and the hands in the Image with a Canvas
-            */
+
             byte[] pixels = new byte[cf.FrameDescription.LengthInPixels * 4];
-            
+
             if (cf.RawColorImageFormat == ColorImageFormat.Bgra)
             {
                 cf.CopyRawFrameDataToArray(pixels);
@@ -352,7 +349,6 @@ namespace KINECTmania.kinectProcessing
             {
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
-
             WritePixelsToStream(pixels);
             canvas.DrawPoint(this.LeftHand);
             canvas.DrawPoint(this.RightHand);
@@ -363,7 +359,8 @@ namespace KINECTmania.kinectProcessing
             Console.WriteLine("Bild gesendet");
 
         }
-        private async void WritePixelsToStream(byte[] pixels) {
+        private async void WritePixelsToStream(byte[] pixels)
+        {
             try
             {
                 await FrameStream.WriteAsync(pixels, 0, pixels.Length);
