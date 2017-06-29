@@ -24,6 +24,7 @@ namespace KINECTmania.kinectProcessing
         private Joint LeftHand, RightHand = new Joint();
         private float buttonSize = 0.3F;
         private MultiSourceFrameReader multiSource = null;
+        private System.Windows.Controls.Canvas canvas;
 
         public ArrowHitPublisher arrowPub = new ArrowHitPublisher();
         public KinectDataInput()
@@ -50,6 +51,7 @@ namespace KINECTmania.kinectProcessing
         public void Start()
         {
             if (kSensor == null || multiSource == null) { InitialiseKinect(); }
+            if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
             if (keepRunning != true)
             {
                 keepRunning = true;
@@ -351,13 +353,15 @@ namespace KINECTmania.kinectProcessing
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
             WritePixelsToStream(pixels);
-            KinectStreamVisualizer.DrawPoint(this.LeftHand);
-            KinectStreamVisualizer.DrawPoint(this.RightHand);
-            KinectStreamVisualizer.DrawPoint(this.arrowUp);
-            KinectStreamVisualizer.DrawPoint(this.arrowDown);
-            KinectStreamVisualizer.DrawPoint(this.arrowLeft);
-            KinectStreamVisualizer.DrawPoint(this.arrowRight);
-
+            if (canvas != null)
+            {
+                canvas.DrawPoint(this.LeftHand);
+                canvas.DrawPoint(this.RightHand);
+                canvas.DrawPoint(this.arrowUp);
+                canvas.DrawPoint(this.arrowDown);
+                canvas.DrawPoint(this.arrowLeft);
+                canvas.DrawPoint(this.arrowRight);
+            }
         }
         private async void WritePixelsToStream(byte[] pixels)
         {

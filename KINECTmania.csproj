@@ -105,6 +105,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\Events.cs" />
+    <Compile Include="GUI\Extensions.cs" />
     <Compile Include="GUI\GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
@@ -117,12 +118,17 @@
     <Compile Include="GUI\MainMenu.xaml.cs">
       <DependentUpon>MainMenu.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GUI\Menu.cs" />
+    <Compile Include="GUI\MenuStateChanged.cs" />
+    <Compile Include="GUI\NotifyGameWindowIsBuilt.cs" />
     <Compile Include="GUI\OptionsMenu.xaml.cs">
       <DependentUpon>OptionsMenu.xaml</DependentUpon>
     </Compile>
     <Compile Include="GameLogic\Note.cs" />
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
+    <Compile Include="GUI\SongLoaded.cs" />
+    <Compile Include="GUI\SongLoadedPublisher.cs" />
     <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
     <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>
