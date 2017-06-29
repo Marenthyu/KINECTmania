@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using KINECTmania.GUI;
 
 namespace KINECTmania.kinectProcessing
 {
@@ -350,13 +351,12 @@ namespace KINECTmania.kinectProcessing
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
             WritePixelsToStream(pixels);
-            canvas.DrawPoint(this.LeftHand);
-            canvas.DrawPoint(this.RightHand);
-            canvas.DrawPoint(this.arrowUp);
-            canvas.DrawPoint(this.arrowDown);
-            canvas.DrawPoint(this.arrowLeft);
-            canvas.DrawPoint(this.arrowRight);
-            Console.WriteLine("Bild gesendet");
+            KinectStreamVisualizer.DrawPoint(this.LeftHand);
+            KinectStreamVisualizer.DrawPoint(this.RightHand);
+            KinectStreamVisualizer.DrawPoint(this.arrowUp);
+            KinectStreamVisualizer.DrawPoint(this.arrowDown);
+            KinectStreamVisualizer.DrawPoint(this.arrowLeft);
+            KinectStreamVisualizer.DrawPoint(this.arrowRight);
 
         }
         private async void WritePixelsToStream(byte[] pixels)
