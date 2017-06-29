@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using Microsoft.SqlServer.Server;
+using NAudio.Utils;
 using NAudio.Wave;
 using Timer = System.Timers.Timer;
 
@@ -19,9 +20,17 @@ namespace KINECTmania.GameLogic
         [STAThread]
         public static void Main(String[] args)
         {
-            GameStateManager gms = new GameStateManager();
+            GameStateManager gms = new GameStateManager(null);
+
             gms.RaiseGameEvent += GmsOnRaiseGameEvent;
-            gms.RaiseDummyEvent();
+
+            gms.LoadSong("C:\\Users\\Peter Fredebold\\Downloads\\ShakeItOff.kmsf");
+            gms.Start();
+            Thread.Sleep(10000);
+            gms.Pause();
+            Thread.Sleep(5000);
+            gms.Resume();
+            
         }
 
         private static void GmsOnRaiseGameEvent(object sender, GameEventArgs gameEventArgs)
@@ -44,6 +53,11 @@ namespace KINECTmania.GameLogic
             WaveOut wavOut = new WaveOut();
             wavOut.Init(reader);
             wavOut.Play();
+            while (true)
+            {
+                Console.WriteLine("Status: {0}, Time: {1}", wavOut.PlaybackState, wavOut.GetPositionTimeSpan().TotalMilliseconds.ToString());
+                Thread.Sleep(1000);
+            }
         }
         
     }

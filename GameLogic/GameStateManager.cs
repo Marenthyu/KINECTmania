@@ -4,19 +4,36 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using KINECTmania.kinectProcessing;
+using NAudio.Utils;
+using NAudio.Wave;
 
 namespace KINECTmania.GameLogic
 {
     class GameStateManager
     {
+        private WaveOutEvent _waveOut;
+        private Thread _playThread;
         public GameState State { get; private set; }
         private Song CurrentSong { get; set; }
+        private ArrowHitPublisher Ahp { get; set; }
+        private List<Note> remainingNotes { get; set; }
 
-        public GameStateManager()
+        public GameStateManager(ArrowHitPublisher ahp)
         {
             State = GameState.MAIN_MENU;
             CurrentSong = null;
+            Ahp = ahp;
+
+            //Ahp.RaiseKinectEvent += AhpOnRaiseKinectEvent;
+            
+        }
+
+        private void AhpOnRaiseKinectEvent(object sender, KinectArrowHitEventArgs kinectArrowHitEventArgs)
+        {
+
         }
 
         public event GameEventHandler RaiseGameEvent;
@@ -42,20 +59,92 @@ namespace KINECTmania.GameLogic
                 throw new SongFileNotFoundException("Could not find Song file. Please make sure " + Path.GetFullPath(Location) +
                                                     " exists.");
             }
+
+            Console.WriteLine(Path.GetFullPath(CurrentSong.SongFile).ToString());
+            Mp3FileReader reader = new Mp3FileReader(Path.GetFullPath(CurrentSong.SongFile));
+            _waveOut = new WaveOutEvent();
+            _waveOut.Init(reader);
+            _waveOut.PlaybackStopped += WaveOutOnPlaybackStopped;
+
+            remainingNotes = new List<Note>(CurrentSong.Notes);
+
             return CurrentSong;
+        }
+
+        private void WaveOutOnPlaybackStopped(object sender, StoppedEventArgs stoppedEventArgs)
+        {
+
+            Console.WriteLine("Playback stopped. {0}", stoppedEventArgs.ToString());
+            State = GameState.SCORES;
         }
 
         public void Start()
         {
-            if (State == GameState.IN_GAME)
+            if (State == GameState.IN_GAME || State == GameState.PAUSED)
             {
-                throw new InvalidGameStateTransitionException("Please pause or end a game before starting.");
+                throw new InvalidGameStateTransitionException("Please end a game before starting.");
             }
 
             if (CurrentSong == null)
             {
                 throw new NoSongLoadedException("Please load a Song before starting!");
             }
+
+            _playThread = new Thread(playSong);
+            _playThread.Start();
+
+            State = GameState.IN_GAME;
+
+        }
+
+        private void playSong()
+        {
+            Console.WriteLine("In playSong");
+            _waveOut.Play();
+            bool wasPaused = false;
+
+            Console.WriteLine("Remaining notes: " + remainingNotes.Count);
+            while (remainingNotes.Count > 0)
+            {
+                long elapsed = (long) _waveOut.GetPositionTimeSpan().TotalMilliseconds;
+                if (State.Equals(GameState.PAUSED))
+                {
+                    if (!wasPaused)
+                    {
+                        Console.WriteLine("Game paused");
+                        wasPaused = true;
+                        _waveOut.Pause();
+                    }
+                    
+                    continue;
+                }
+
+                if (wasPaused && State.Equals(GameState.IN_GAME))
+                {
+                    Console.WriteLine("Was paused, resuming...");
+                    _waveOut.Play();
+                    wasPaused = false;
+                }
+
+                Note current;
+                while ((current = remainingNotes.First()).StartTime() <= elapsed -200)
+                {
+                   
+                        Console.WriteLine("Missed note at " + current.Position());
+                        OnRaiseGameEvent(new GameEventArgs(current, Accuracy.MISS, 0));
+                        remainingNotes.Remove(current);
+                        Console.WriteLine("Removed a note.");
+                    if (remainingNotes.Count == 0)
+                    {
+                        break;
+                    }
+                    
+                }
+                
+
+            }
+            Console.WriteLine("After loop");
+            
         }
 
         public void Pause()
@@ -78,16 +167,24 @@ namespace KINECTmania.GameLogic
                     throw new InvalidGameStateTransitionException("Can't pause in Options Menu.");
                 case GameState.SCORES:
                     throw new InvalidGameStateTransitionException("Can not pause on scores.");
+                case GameState.READY:
+                    throw new InvalidGameStateTransitionException("Can not pause before starting.");
                 default:
                     throw new ArgumentOutOfRangeException();
             }
             
         }
+
+        public void Resume()
+        {
+            State = GameState.IN_GAME;
+        }
     }
+
 
     public enum GameState
     {
-        MAIN_MENU, PAUSED, IN_GAME, LOADING_SONG, OPTIONS, SCORES
+        MAIN_MENU, PAUSED, IN_GAME, LOADING_SONG, READY, OPTIONS, SCORES
     }
 
     public class GameEventArgs : EventArgs
