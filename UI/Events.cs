@@ -99,4 +99,15 @@ namespace KINECTmania.GUI
 
         void OnRaiseKinectStreamRequested(KinectStreamRequested k);
     }
+
+    public class CountdownFinished : EventArgs
+    {
+
+    }
+
+    public interface CountdownFinishedPublisher
+    {
+        event EventHandler<CountdownFinished> RaiseCountdownFinished;
+        void OnRaiseCountdownFinished(CountdownFinished CdownFin);
+    }
 }

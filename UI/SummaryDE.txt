@@ -13,3 +13,16 @@ Dateien:
  - GameOptionsMenu.xaml/.xaml.cs: In diesem Menü können die Spieleinstellungen festgelegt werden (z.B. BPM, Reaktionszeit, ...)
  - GamePage.xaml/.xaml.cs: In dieser Seite läuft das eigentliche Spiel ab
  - Extensions.cs: Gefunden auf http://pterneas.com/2014/03/13/kinect-for-windows-version-2-body-tracking/ (zuletzt abgerufen: 28. Juni 2017, 10:50 Uhr)
+
+ Erklärungen:
+ GamePage.playGame() - die ellenlange if-Bedingung:
+	
+	startTime: Die Zeit (in ms), die seit dem Spielstart und heute Nacht, 0.00 Uhr vergangen ist
+	Now2ms(): Die Zeit (in ms), die zwischen jetzt und heute Nacht, 0.00 Uhr vergangen ist
+		Diese Funktion überlebt es auch, wenn man vor 0.00 Uhr ein Spiel startet und nach 0.00 Uhr das Spiel immer noch läuft
+	(I) Now2ms() - startTime: Die Zeit, die das Spiel schon live ist
+		Wenn man hiervon die reactionTime abzieht, haben wir genau die zeit, ab die ein Pfeil losgeschossen werden soll
+	(II) currentSong.GetNotes().ElementAt(lastNoteTriggered).StartTime(): Die Startzeit der aktuellen (durh lastNoteTriggered bestimmten) Note
+	
+	Ist (I) >= (II), so muss genau jetzt der Pfeil losgeschickt werden, damit der Pfeil rechtzeitig die Hitbox erreicht
+
