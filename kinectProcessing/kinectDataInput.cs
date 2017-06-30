@@ -6,6 +6,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.IO;
 using System.Threading.Tasks;
+using KINECTmania.GUI;
+using System.Windows.Controls;
 
 namespace KINECTmania.kinectProcessing
 {
@@ -349,12 +351,13 @@ namespace KINECTmania.kinectProcessing
             }
 
             WritePixelsToStream(pixels);
-            //canvas.DrawPoint(this.LeftHand);
-            //canvas.DrawPoint(this.RightHand);
-            //canvas.DrawPoint(this.arrowUp);
-            //canvas.DrawPoint(this.arrowDown);
-            //canvas.DrawPoint(this.arrowLeft);
-            //canvas.DrawPoint(this.arrowRight);
+            Canvas canvas = GamePage.getKinectStreamVisualizer();
+            canvas.DrawPoint(this.LeftHand);
+            canvas.DrawPoint(this.RightHand);
+            canvas.DrawPoint(this.arrowUp);
+            canvas.DrawPoint(this.arrowDown);
+            canvas.DrawPoint(this.arrowLeft);
+            canvas.DrawPoint(this.arrowRight);
             Console.WriteLine("Bild gesendet");
 
         }
