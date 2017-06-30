@@ -8,7 +8,8 @@
         Title="Window1" MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximumWindowTrackHeightKey}}"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        Icon="res/kmLogoSq.ico">
     <Grid ScrollViewer.VerticalScrollBarVisibility="Disabled">
         <Grid.Background>
             <ImageBrush/>
