@@ -26,13 +26,16 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für GamePage.xaml
     /// </summary>
-    public partial class GamePage : Page, Menu, CountdownFinishedPublisher
+    public partial class GamePage : Page, Menu
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
-        public event EventHandler<CountdownFinished> RaiseCountdownFinished;
-        private System.Windows.Threading.DispatcherTimer countdownTimer;
+        private System.Windows.Threading.DispatcherTimer countdownTimer, ingameClock, gameoverClock;
         private int secondsBeforeGameStarts = 5;
         static GamePage staticGamePage;
+        List<ArrowMover> arrowMovers;
+        Song currentSong;
+        int reactiontime, lastNoteStarted;
+        double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
 
         public GamePage()
         {
@@ -40,6 +43,12 @@ namespace KINECTmania.GUI
             countdownTimer = new System.Windows.Threading.DispatcherTimer(); //This timer will realize a countdown before the game starts, similiar to a "ready, set go!" before the start of a race
             countdownTimer.Tick += new EventHandler(countdownTimer_Tick);
             countdownTimer.Interval = new TimeSpan(0, 0, 1); //Timespan(hours, minutes, seconds)
+            ingameClock = new DispatcherTimer();
+            ingameClock.Tick += new EventHandler(ingameClock_Tick);
+            ingameClock.Interval = new TimeSpan(0, 0, 0, 0, 30);
+            gameoverClock = new DispatcherTimer();
+            gameoverClock.Tick += new EventHandler(gameoverClock_Tick);
+            gameoverClock.Interval = new TimeSpan(0, 0, 3);
             staticGamePage = this;
         }
 
@@ -105,6 +114,7 @@ namespace KINECTmania.GUI
                 //    kdi.Start();                                      WE GOT A KINECT
                 //    kdi.Stop();                                       PLUGGED IN
                 PlayGameTAP.StartupDate = DateTime.Today;
+                
 
             }
         }
@@ -112,20 +122,13 @@ namespace KINECTmania.GUI
         void HandleSongLoaded(object sender, SongLoaded s)
         {
             PlayGameTAP.CurrentSong = s.LoadedSong;
+            currentSong = s.LoadedSong;
         }
 
         void HandleGameOptionsSet(object sender, GameOptionsSet gs)
         {
             PlayGameTAP.Reactiontime = gs.MS;
-        }
-
-        void HandleCountdownFinished(object sender, CountdownFinished CdownFin)
-        {
-            //Thread t = new Thread(new ThreadStart(PlayGame));
-            //t.SetApartmentState(ApartmentState.STA);
-            //t.Start();
-
-            //PlayGame();
+            reactiontime = gs.MS;
         }
 
         async void countdownTimer_Tick(object sender, EventArgs e)//Implements the Countdown... nothing else, really!
@@ -138,6 +141,21 @@ namespace KINECTmania.GUI
                         CountdownDisplayer5.Visibility = Visibility.Hidden;
                         CountdownDisplayer4.Visibility = Visibility.Visible;
                         Console.Write("Info: Game starts in 4... ");
+                        await Task.Factory.StartNew(() => 
+                            {
+                                arrowMovers = new List<ArrowMover>();
+                                foreach (Note n in currentSong.Notes)
+                                {
+                                    ArrowMover newAM = new ArrowMover(n.Position(), reactiontime, arrowTravelLayer);
+                                    if(reactiontime < n.StartTime())
+                                    {
+                                        Canvas.SetTop(newAM.Arrow, SystemParameters.PrimaryScreenHeight * (n.StartTime() / reactiontime));
+                                        newAM.MovingState = 1;
+                                    }
+                                    arrowMovers.Add(newAM);
+                                }
+                                arrowTravelLayer.InvalidateVisual();
+                            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
                         break;
                     }
                 case 3:
@@ -164,23 +182,19 @@ namespace KINECTmania.GUI
                     }
                 case 0:
                     {
-                        CountdownDisplayer1.Visibility = Visibility.Hidden;
-                        KinectStreamVisualizer.InvalidateVisual();
+                        await Task.Factory.StartNew( () => { CountdownDisplayer1.Visibility = Visibility.Hidden; }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+                        ingameClock.Start();
 
                         
-                        await Task.Factory.StartNew(() => {
-                            PlayGameTAP.CallingInstance = this;
-                            PlayGameTAP.ArrowtravelLayer = this.arrowTravelLayer;
-                            PlayGameTAP.PlayGame(); 
-                            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
-
+                        //await Task.Factory.StartNew(() => {
+                        //    PlayGameTAP.CallingInstance = this;
+                        //    PlayGameTAP.ArrowtravelLayer = this.arrowTravelLayer;
+                        //    PlayGameTAP.PlayGame(); 
+                        //    }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
+                        
                         break;
                     }
             }
-
-
-
-
             if (secondsBeforeGameStarts > 0)
             {
                 countdownTimer.Interval = new TimeSpan(0, 0, 1);
@@ -188,14 +202,46 @@ namespace KINECTmania.GUI
             }
         }
 
+        void ingameClock_Tick(object sender, EventArgs e)
+        {
+            for(int i = 0; i < arrowMovers.Count; i++)
+            {
+                ArrowMover currentArrowMover = arrowMovers[i];
+                if (currentArrowMover.MovingState == 0 && PlayGameTAP.Now2ms() - startTime >= (currentSong.Notes[lastNoteStarted].Position() - reactiontime))
+                {
+                    currentArrowMover.MovingState = 1;
+                    lastNoteStarted++;
+                }
+                if (currentArrowMover.MovingState == 1)
+                {
+                    Canvas.SetTop(currentArrowMover.Arrow, Canvas.GetTop(currentArrowMover.Arrow) - currentArrowMover.Speed);
+                    if (Canvas.GetTop(currentArrowMover.Arrow) < -100)
+                    {
+                        currentArrowMover.MovingState = 2;
+                        currentArrowMover.destroyME();
+                        arrowMovers.RemoveAt(i);
+                    }
+                }
+            }
+            if (lastNoteStarted - 1 != currentSong.Notes.Count)
+            {
+                ingameClock.Start();
+            }
+            else
+            {
+                Console.WriteLine("Game Over!");
+                gameoverClock.Start();
+            }
+        }
+
+        void gameoverClock_Tick (object Sender, EventArgs e)
+        {
+            OnRaiseMenuStateChanged(new MenuStateChanged(0));
+        }
+
         public virtual void OnRaiseMenuStateChanged(MenuStateChanged e)
         {
             RaiseMenuStateChanged?.Invoke(this, e);
-        }
-
-        public virtual void OnRaiseCountdownFinished(CountdownFinished CdownFin)
-        {
-            RaiseCountdownFinished?.Invoke(this, CdownFin);
         }
 
         #endregion
@@ -248,77 +294,94 @@ namespace KINECTmania.GUI
             set { callingInstance = value; }
         }
 
-        
-        public static void PlayGame() //Called by an event handler (countdownTimer_Tick)
+        #region deprecated PlayGame() method
+        [Obsolete("Wird nicht mehr grbraucht, da ingameClock_Tick diese aufgabe jetzt übernimmt")]
+        async public static void PlayGame() //Called by an event handler (countdownTimer_Tick)
         {
 
             double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
             int lastNoteStarted = 0;
             ArrowMover currentArrowMover;
 
-            foreach (Note n in currentSong.GetNotes())
+            foreach (Note n in currentSong.Notes)
             {
-                currentArrowMover = new ArrowMover(currentSong.GetNotes().ElementAt(lastNoteStarted).Position(), reactiontime);
+                currentArrowMover = new ArrowMover(currentSong.Notes.ElementAt(lastNoteStarted).Position(), reactiontime, arrowTravelLayer);
                 arrowmovers.Add(currentArrowMover);
-                arrowTravelLayer.Children.Add(currentArrowMover.Arrow);
-                if (reactiontime < currentSong.GetNotes()[lastNoteStarted].StartTime())
+                if (reactiontime < currentSong.Notes[lastNoteStarted].StartTime())
                 {
-                    Canvas.SetTop(currentArrowMover.Arrow, currentArrowMover.Speed * (reactiontime / currentSong.GetNotes()[lastNoteStarted].StartTime()));
+                    Canvas.SetTop(currentArrowMover.Arrow, currentArrowMover.Speed * (reactiontime / currentSong.Notes[lastNoteStarted].StartTime()));
                     currentArrowMover.MovingState = 1;
                 }
             }
-            while (IsLive(lastNoteStarted))
-            {
-                if ((currentSong.GetNotes().Count > lastNoteStarted) && (Now2ms() - startTime - reactiontime) >= currentSong.GetNotes().ElementAt(lastNoteStarted).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
-                { //Pfeile hinzufügen
-                    currentArrowMover = arrowmovers[lastNoteStarted];
-                    currentArrowMover.Arrow.Visibility = Visibility.Visible;
-                    currentArrowMover.MovingState = 1;
-                    Console.WriteLine("Info: next ArrowMover on it's way! @ " + DateTime.Now.ToString());
-                    moveImageUpwards(currentArrowMover);
+
+            
+            
+                while (IsLive(lastNoteStarted))
+                {
+                    if ((currentSong.Notes.Count > lastNoteStarted) && (Now2ms() - startTime - reactiontime) >= currentSong.Notes.ElementAt(lastNoteStarted).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
+                    { //Pfeile hinzufügen
+                        currentArrowMover = arrowmovers[lastNoteStarted];
+                        currentArrowMover.Arrow.Visibility = Visibility.Visible;
+                        currentArrowMover.MovingState = 1;
+                        Console.WriteLine("Info: next ArrowMover on it's way! @ " + DateTime.Now.ToString());
+                        await moveImageUpwards(currentArrowMover);
+                        arrowTravelLayer.InvalidateVisual();
+                        lastNoteStarted++;
+                    }
+                    else
+                    {
+                        currentArrowMover = null;
+                    }
+
+                    for (int i = 0; i < arrowmovers.Count; i++)
+                    {
+                        if (currentArrowMover?.MovingState == 2)
+                        {
+                            arrowTravelLayer.Children.Remove(currentArrowMover.Arrow);
+                            arrowmovers.RemoveAt(i);
+                            Console.WriteLine("    Info: Removed an arrow @ " + DateTime.Now.ToString());
+                        }
+                        if (currentArrowMover?.MovingState == 1)
+                        {
+                            await moveImageUpwards(arrowmovers[i]);
+                        }
+                    }
+
                     arrowTravelLayer.InvalidateVisual();
-                    lastNoteStarted++;
                 }
-                else
-                {
-                    currentArrowMover = null;
-                }
+            
 
-                for (int i = 0; i < arrowmovers.Count; i++)
-                {
-                    if (currentArrowMover?.MovingState == 2)
-                    {
-                        arrowTravelLayer.Children.Remove(currentArrowMover.Arrow);
-                        arrowmovers.RemoveAt(i);
-                        Console.WriteLine("    Info: Removed an arrow @ " + DateTime.Now.ToString());
-                    }
-                    if (currentArrowMover?.MovingState == 1)
-                    {
-                        moveImageUpwards(arrowmovers[i]);
-                    }
-                }
 
-                arrowTravelLayer.InvalidateVisual();
-                //Thread.Sleep(1);
-            }
+
             Console.WriteLine("Info: Game over!");
             //callingInstance.OnRaiseMenuStateChanged(new MenuStateChanged(0));
 
 
         } //end of PlayGame() method
 
-        private static void moveImageUpwards(ArrowMover am)
+        #endregion
+
+        async private static Task moveImageUpwards(ArrowMover am)
         {
-            if (Canvas.GetTop(am.Arrow) > -100 && am.MovingState == 1)
-            {
-                Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
-                arrowTravelLayer.InvalidateVisual();
-            }
-            else { am.MovingState = 2; }
+            
+                await Task.Factory.StartNew(() =>
+                {
+                    if (Canvas.GetTop(am.Arrow) > -200 && am.MovingState == 1)
+                    {
+                        am.Worker = Task.CurrentId;
+                        Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
+                        arrowTravelLayer.InvalidateVisual();
+                        Thread.Sleep(1);
+                    }
+                    else { am.MovingState = 2; Console.WriteLine("An arrow reached the top!");  }
+                }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
+            
+           
+            
 
         }
 
-        private static double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
+        public static double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
         {
             DateTime now = DateTime.Now;
             if (now.Day == startupDate.Day)
@@ -331,10 +394,10 @@ namespace KINECTmania.GUI
             }
         }
 
-        private static bool IsLive(int lastNoteTriggered)
+        public static bool IsLive(int lastNoteTriggered)
         {
 
-            if (currentSong.GetNotes().Count <= eventsRecieved || currentSong.GetNotes().Count <= lastNoteTriggered)
+            if (currentSong.Notes.Count <= eventsRecieved || currentSong.Notes.Count <= lastNoteTriggered)
             {
                 return false;
             }
@@ -350,61 +413,70 @@ namespace KINECTmania.GUI
     {
         int code;
         Image arrow;
-        public Image Arrow { get { return arrow; } }
+        public Image Arrow { get { return arrow; } set { arrow = value; } }
         int movingState = 0; //0: Remain at the bottom | 1: Moving up | 2: Reached top
         double speed;
+        int? worker;
+        public int? Worker
+        {
+            get { return worker; }
+            set { worker = value; }
+        }
         public double Speed { get { return speed; } }
         public int MovingState
         {
             get { return movingState; }
             set { movingState = value; }
         }
-        public ArrowMover(int code, int reactiontime)
+        public ArrowMover(int code, int reactiontime, Canvas canvasWithArrows)
         {
             this.code = code;
-            this.arrow = arrowGenerator((short)code);
-            speed = System.Windows.SystemParameters.PrimaryScreenHeight / reactiontime; //in px/ms
+            this.arrow = arrowGenerator((short)code, canvasWithArrows);
+            speed = 30 * System.Windows.SystemParameters.PrimaryScreenHeight / reactiontime; //in px per 30 ms
         }
-        private void destroyME()
+        public void destroyME()
         {
             arrow.Visibility = Visibility.Hidden;
             arrow = null;
             code = 0;
         }
-        private static Image arrowGenerator(short direction)
+        private static Image arrowGenerator(short direction, Canvas parent)
         {
             Image retVal = new Image();
             switch (direction)
             {
                 case 1:
                     retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_up.gif", UriKind.Absolute));
+                    parent.Children.Add(retVal);
                     Canvas.SetLeft(retVal, 1350);
-                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 100);
                     retVal.Width = 100;
                     retVal.Height = 100;
                     retVal.Visibility = Visibility.Visible;
-
                     return retVal;
                 case 2:
                     retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_down.gif", UriKind.Absolute));
+                    parent.Children.Add(retVal);
                     Canvas.SetLeft(retVal, 1500);
-                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 100);
                     retVal.Width = 100;
                     retVal.Height = 100;
                     retVal.Visibility = Visibility.Visible;
                     return retVal;
                 case 3:
                     retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_left.gif", UriKind.Absolute));
+                    parent.Children.Add(retVal);
                     Canvas.SetLeft(retVal, 1650);
-                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 100);
                     retVal.Width = 100;
                     retVal.Height = 100;
                     retVal.Visibility = Visibility.Visible;
                     return retVal;
                 case 4:
                     retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_right.gif", UriKind.Absolute));
+                    parent.Children.Add(retVal);
                     Canvas.SetLeft(retVal, 1800);
-                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 100);
                     retVal.Width = 100;
                     retVal.Height = 100;
                     retVal.Visibility = Visibility.Visible;

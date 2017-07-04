@@ -40,7 +40,8 @@
     <StartupObject>WpfApplication1.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>GUI\res\kmLogoSq.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
