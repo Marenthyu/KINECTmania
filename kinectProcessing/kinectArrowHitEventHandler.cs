@@ -6,45 +6,54 @@ using System.Threading.Tasks;
 
 namespace KINECTmania.kinectProcessing
 {
-    public class KinectArrowHitEventArgs : EventArgs  
+    public class KinectArrowHitEventArgs : EventArgs
     {
-        public KinectArrowHitEventArgs(short s) {
+        public KinectArrowHitEventArgs(short s)
+        {
             message = s;
         }
         private short message;
 
-        public short Message {
-            get {return message; }
-            set {message = value; }
-        } 
+        public short Message
+        {
+            get { return message; }
+            set { message = value; }
+        }
     }
-    class ArrowHitPublisher
+    public class ArrowHitPublisher
     {
         public event EventHandler<KinectArrowHitEventArgs> RaiseKinectEvent;
-        public void SendEvent(short s) {
+        public void SendEvent(short s)
+        {
             OnRaiseKinectEvent(new KinectArrowHitEventArgs(s));
         }
-        protected virtual void OnRaiseKinectEvent(KinectArrowHitEventArgs e) {
+        protected virtual void OnRaiseKinectEvent(KinectArrowHitEventArgs e)
+        {
             EventHandler<KinectArrowHitEventArgs> handler = RaiseKinectEvent;
-            if (handler != null) {
+            if (handler != null)
+            {
                 handler(this, e);
-            } else {
+            }
+            else
+            {
                 Console.WriteLine("No Subs");
             }
-            
+
         }
     }
-    class ArrowHitSubscriber
+    public class ArrowHitSubscriber
     {
         private string id;
-        public ArrowHitSubscriber(string ID, ArrowHitPublisher pub) {
+        public ArrowHitSubscriber(string ID, ArrowHitPublisher pub)
+        {
             id = ID;
             pub.RaiseKinectEvent += HandleKinectArrowHitEvent;
         }
-        void HandleKinectArrowHitEvent(object sender, KinectArrowHitEventArgs e) {
+        void HandleKinectArrowHitEvent(object sender, KinectArrowHitEventArgs e)
+        {
             throw new NotImplementedException();
 
         }
-        
+
     }
 }

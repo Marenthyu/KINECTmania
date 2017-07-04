@@ -10,9 +10,11 @@ namespace KINECTmania.GameLogic
 {
     public class Song
     {
-        private List<Note> notes;
-        private String songTitle, songArtist, songFile;
-        private long length;
+        public List<Note> Notes { get; private set; }
+        public string SongTitle { get; private set; }
+        public string SongArtist { get; private set; }
+        public string SongFile { get; private set; }
+        public long Length { get; private set; }
         public const String FILEINFO_SECTION = "FileInfo", SONGINFO_SECTION = "SongInfo", NOTE_SECTION = "Notes";
 
         public Song(String songFile)
@@ -22,11 +24,11 @@ namespace KINECTmania.GameLogic
 
         private Song(String songTitle, String songArtist, String songFile, long length, List<Note> notes)
         {
-            this.songTitle = songTitle;
-            this.songArtist = songArtist;
-            this.songFile = songFile;
-            this.length = length;
-            this.notes = notes;
+            this.SongTitle = songTitle;
+            this.SongArtist = songArtist;
+            this.SongFile = songFile;
+            this.Length = length;
+            this.Notes = notes;
         }
 
         private void LoadSong(String kmsfFile)
@@ -39,7 +41,7 @@ namespace KINECTmania.GameLogic
             }
             String currentSection = null;
             int currLine = 0;
-            notes = new List<Note>();
+            Notes = new List<Note>();
             foreach (String line in lines)
             {
                 currLine++;
@@ -58,7 +60,7 @@ namespace KINECTmania.GameLogic
                 {
                     case NOTE_SECTION:
                         Note noteToAdd = Note.NoteFromLine(line);
-                        notes.Add(noteToAdd);
+                        Notes.Add(noteToAdd);
                         Console.WriteLine("Added note: " + noteToAdd);
                         break;
                     case FILEINFO_SECTION:
@@ -94,16 +96,16 @@ namespace KINECTmania.GameLogic
                         switch (key)
                         {
                             case "SongFile":
-                                songFile = value;
+                                SongFile = value;
                                 break;
                             case "Length":
-                                length = long.Parse(value);
+                                Length = long.Parse(value);
                                 break;
                             case "SongTitle":
-                                songTitle = value;
+                                SongTitle = value;
                                 break;
                             case "SongArtist":
-                                songArtist = value;
+                                SongArtist = value;
                                 break;
                             default:
                                 Console.WriteLine("Unknown Attribute {0}, skipping.", value);
@@ -120,17 +122,7 @@ namespace KINECTmania.GameLogic
         public override String ToString()
         {
             return
-                $"Song[Title: {songTitle}; Artist: {songArtist}; Length: {length}; Song File: {songFile}; Notes: [{string.Join(", ", notes)}]]";
-        }
-
-        public List<Note> GetNotes()
-        {
-            return notes;
-        }
-
-        public long GetLength()
-        {
-            return length;
+                $"Song[Title: {SongTitle}; Artist: {SongArtist}; Length: {Length}; Song File: {SongFile}; Notes: [{string.Join(", ", Notes)}]]";
         }
 
     }
