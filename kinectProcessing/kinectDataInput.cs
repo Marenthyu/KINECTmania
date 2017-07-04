@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Microsoft.Kinect;
@@ -26,7 +26,7 @@ namespace KINECTmania.kinectProcessing
         private MultiSourceFrameReader multiSource = null;
         private System.Windows.Controls.Canvas canvas;
 
-        public ArrowHitPublisher arrowPub = new ArrowHitPublisher();
+        public static ArrowHitPublisher arrowPub = new ArrowHitPublisher();
         public KinectDataInput()
         {
             for (int i = 0; i < stillHittingLeft.Length; i++)
@@ -51,7 +51,7 @@ namespace KINECTmania.kinectProcessing
         public void Start()
         {
             if (kSensor == null || multiSource == null) { InitialiseKinect(); }
-            if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
+            //if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
             if (keepRunning != true)
             {
                 keepRunning = true;
@@ -355,12 +355,12 @@ namespace KINECTmania.kinectProcessing
             WritePixelsToStream(pixels);
             if (canvas != null)
             {
-                canvas.DrawPoint(this.LeftHand);
+                /*canvas.DrawPoint(this.LeftHand);
                 canvas.DrawPoint(this.RightHand);
                 canvas.DrawPoint(this.arrowUp);
                 canvas.DrawPoint(this.arrowDown);
                 canvas.DrawPoint(this.arrowLeft);
-                canvas.DrawPoint(this.arrowRight);
+                canvas.DrawPoint(this.arrowRight);*/
             }
         }
         private async void WritePixelsToStream(byte[] pixels)

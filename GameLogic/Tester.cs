@@ -20,17 +20,16 @@ namespace KINECTmania.GameLogic
         [STAThread]
         public static void Main(String[] args)
         {
-            GameStateManager gms = new GameStateManager(null);
+            GameStateManager gms = new GameStateManager();
 
             gms.RaiseGameEvent += GmsOnRaiseGameEvent;
 
             gms.LoadSong("C:\\Users\\Peter Fredebold\\Downloads\\ShakeItOff.kmsf");
             gms.Start();
-            Thread.Sleep(10000);
-            gms.Pause();
-            Thread.Sleep(5000);
-            gms.Resume();
-            
+            Thread.Sleep(1000);
+            gms.RaiseDummyEvent();
+            Thread.Sleep(4100);
+            gms.RaiseDummyEvent();
         }
 
         private static void GmsOnRaiseGameEvent(object sender, GameEventArgs gameEventArgs)

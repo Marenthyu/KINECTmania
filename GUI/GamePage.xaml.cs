@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -155,7 +155,7 @@ namespace KINECTmania.GUI
         private bool checkIfStillLive()
         {
             int eventsRecieved = 0;
-            if (currentSong.GetNotes().Count == eventsRecieved)
+            if (currentSong.Notes.Count == eventsRecieved)
             {
                 return true;
             }

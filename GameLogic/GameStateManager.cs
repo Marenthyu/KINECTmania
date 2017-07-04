@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,20 +20,67 @@ namespace KINECTmania.GameLogic
         private Song CurrentSong { get; set; }
         private ArrowHitPublisher Ahp { get; set; }
         private List<Note> remainingNotes { get; set; }
+        private static long CurrentTime { get; set; }
+    
 
-        public GameStateManager(ArrowHitPublisher ahp)
+        public GameStateManager()
         {
             State = GameState.MAIN_MENU;
             CurrentSong = null;
-            Ahp = ahp;
+            Ahp = KinectDataInput.arrowPub;
 
-            //Ahp.RaiseKinectEvent += AhpOnRaiseKinectEvent;
+            Ahp.RaiseKinectEvent += AhpOnRaiseKinectEvent;
             
         }
 
         private void AhpOnRaiseKinectEvent(object sender, KinectArrowHitEventArgs kinectArrowHitEventArgs)
         {
-
+            Console.WriteLine("Checking event catched for note at " + kinectArrowHitEventArgs.Message + "; time: " + CurrentTime);
+            foreach (Note n in remainingNotes)
+            {
+                long startTime = n.StartTime();
+                if (startTime > CurrentTime - 200 && startTime < CurrentTime + 200 && n.Position().Equals(kinectArrowHitEventArgs.Message))
+                {
+                    long delta = CurrentTime - startTime;
+                    if (delta < 0)
+                    {
+                        delta = delta * -1;
+                    }
+                    if (delta < 33)
+                    {
+                        OnRaiseGameEvent(new GameEventArgs(n, Accuracy.MARVELOUS, 10000));
+                        remainingNotes.Remove(n);
+                        return;
+                    }
+                    if (delta < 66)
+                    {
+                        OnRaiseGameEvent(new GameEventArgs(n, Accuracy.PERFECT, 6666));
+                        remainingNotes.Remove(n);
+                        return;
+                    }
+                    if (delta < 100)
+                    {
+                        OnRaiseGameEvent(new GameEventArgs(n, Accuracy.GREAT, 3333));
+                        remainingNotes.Remove(n);
+                        return;
+                    }
+                    if (delta < 133)
+                    {
+                        OnRaiseGameEvent(new GameEventArgs(n, Accuracy.GOOD, 500));
+                        remainingNotes.Remove(n);
+                        return;
+                    }
+                    if (delta < 166)
+                    {
+                        OnRaiseGameEvent(new GameEventArgs(n, Accuracy.BAD, 0));
+                        remainingNotes.Remove(n);
+                        return;
+                    }
+                    OnRaiseGameEvent(new GameEventArgs(n, Accuracy.BOO, 0));
+                    remainingNotes.Remove(n);
+                    return;
+                }
+            }
         }
 
         public event GameEventHandler RaiseGameEvent;
@@ -45,7 +92,7 @@ namespace KINECTmania.GameLogic
 
         public void RaiseDummyEvent()
         {
-            OnRaiseGameEvent(new GameEventArgs(new Note(888L, (short) 4), Accuracy.MARVELOUS, 10000));
+            AhpOnRaiseKinectEvent(this, new KinectArrowHitEventArgs(1));
         }
 
         public Song LoadSong(String path)
@@ -107,6 +154,7 @@ namespace KINECTmania.GameLogic
             while (remainingNotes.Count > 0)
             {
                 long elapsed = (long) _waveOut.GetPositionTimeSpan().TotalMilliseconds;
+                CurrentTime = elapsed;
                 if (State.Equals(GameState.PAUSED))
                 {
                     if (!wasPaused)
