@@ -9,24 +9,24 @@
       Title="GamePage">
 
     <Grid Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}">
+        <Canvas x:Name="KinectStreamVisualizer" HorizontalAlignment="Left" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" Margin="-10,0,0,0" VerticalAlignment="Top" Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}">
+            <Canvas.Background>
+                <ImageBrush ImageSource="res/defaultKinectBG.bmp" Stretch="None"/>
+            </Canvas.Background>
+            <Image x:Name="CountdownDisplayer5" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/5.gif" Visibility="Visible"/>
+            <Image x:Name="CountdownDisplayer4" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/4.gif" Visibility="Hidden"/>
+            <Image x:Name="CountdownDisplayer3" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/3.gif" Visibility="Hidden"/>
+            <Image x:Name="CountdownDisplayer2" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/2.gif" Visibility="Hidden"/>
+            <Image x:Name="CountdownDisplayer1" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/1.gif" Visibility="Hidden"/>
+        </Canvas>
         <Canvas x:Name="arrowTravelLayer" HorizontalAlignment="Left" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" VerticalAlignment="Top" Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}">
             <Image x:Name="downTarget" Height="100" Canvas.Left="1500" Canvas.Top="50" Width="100" RenderTransformOrigin="3.286,-0.413" Source="res/c_down.gif"/>
             <Image x:Name="rightTarget" Height="100" Canvas.Left="1800" Canvas.Top="50" Width="100" Source="res/c_right.gif"/>
             <Image x:Name="upTarget" Height="100" Canvas.Left="1350" Canvas.Top="50" Width="100" Source="res/c_up.gif"/>
             <Image x:Name="leftTarget" Height="100" Canvas.Left="1650" Canvas.Top="50" Width="100" Source="res/c_left.gif"/>
         </Canvas>
-        <Canvas x:Name="KinectStreamVisualizer" HorizontalAlignment="Left" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" Margin="-10,0,0,0" VerticalAlignment="Top" Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}">
-            <Canvas.Background>
-                <ImageBrush ImageSource="res/defaultKinectBG.bmp" Stretch="None"/>
-            </Canvas.Background>
-            
-        </Canvas>
-        <Image x:Name="CountdownDisplayer5" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/5.gif" Visibility="Hidden"/>
-        <Image x:Name="CountdownDisplayer4" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/4.gif" Visibility="Hidden"/>
-        <Image x:Name="CountdownDisplayer3" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/3.gif" Visibility="Hidden"/>
-        <Image x:Name="CountdownDisplayer2" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/2.gif" Visibility="Hidden"/>
-        <Image x:Name="CountdownDisplayer1" HorizontalAlignment="Left" Height="125" Margin="874,504,0,0" VerticalAlignment="Top" Width="250" Source="res/1.gif" Visibility="Hidden"/>
         
+
 
     </Grid>
 </Page>

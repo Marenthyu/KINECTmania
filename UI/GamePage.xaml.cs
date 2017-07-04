@@ -16,11 +16,13 @@ using KINECTmania.GameLogic;
 using KINECTmania.kinectProcessing;
 using Microsoft.Kinect;
 using System.Threading;
+using System.IO;
+using System.Windows.Threading;
 
 
 namespace KINECTmania.GUI
 {
-    
+
     /// <summary>
     /// Interaktionslogik für GamePage.xaml
     /// </summary>
@@ -30,17 +32,7 @@ namespace KINECTmania.GUI
         public event EventHandler<CountdownFinished> RaiseCountdownFinished;
         private System.Windows.Threading.DispatcherTimer countdownTimer;
         private int secondsBeforeGameStarts = 5;
-        private Song currentSong;
-        private DateTime startupDate;
-        int reactiontime = -1;
-        int eventsRecieved = 0;
-        int score = 0;
-        public int Score
-        {
-            get { return score; }
-            set { score = value; }
-        }
-        volatile static GamePage staticGamePage;
+        static GamePage staticGamePage;
 
         public GamePage()
         {
@@ -55,7 +47,7 @@ namespace KINECTmania.GUI
         {
             return staticGamePage.KinectStreamVisualizer;
         }
-        
+
         public static Canvas getArrowTravelLayer()
         {
             return staticGamePage.arrowTravelLayer;
@@ -112,43 +104,40 @@ namespace KINECTmania.GUI
                 //    kinectDataInput kdi = new kinectDataInput();      UNCOMMENT ME WHEN
                 //    kdi.Start();                                      WE GOT A KINECT
                 //    kdi.Stop();                                       PLUGGED IN
-                startupDate = DateTime.Today;
-                this.RaiseCountdownFinished += HandleCountdownFinished;
+                PlayGameTAP.StartupDate = DateTime.Today;
 
             }
         }
 
         void HandleSongLoaded(object sender, SongLoaded s)
         {
-            this.currentSong = s.LoadedSong;
+            PlayGameTAP.CurrentSong = s.LoadedSong;
         }
 
         void HandleGameOptionsSet(object sender, GameOptionsSet gs)
         {
-            this.reactiontime = gs.MS;
+            PlayGameTAP.Reactiontime = gs.MS;
         }
 
         void HandleCountdownFinished(object sender, CountdownFinished CdownFin)
         {
-            playGame();
+            //Thread t = new Thread(new ThreadStart(PlayGame));
+            //t.SetApartmentState(ApartmentState.STA);
+            //t.Start();
+
+            //PlayGame();
         }
 
-        private void countdownTimer_Tick(object sender, EventArgs e)//Implements the Countdown... nothing else, really!
+        async void countdownTimer_Tick(object sender, EventArgs e)//Implements the Countdown... nothing else, really!
         {
             countdownTimer.Stop();
-            switch (secondsBeforeGameStarts) 
+            switch (--secondsBeforeGameStarts)
             {
-                case 5:
-                    {
-                        CountdownDisplayer5.Visibility = Visibility.Visible;
-                        Console.Write("Info: Game starts in 5... ");
-                        break;
-                    }
                 case 4:
                     {
                         CountdownDisplayer5.Visibility = Visibility.Hidden;
                         CountdownDisplayer4.Visibility = Visibility.Visible;
-                        Console.Write("4... ");
+                        Console.Write("Info: Game starts in 4... ");
                         break;
                     }
                 case 3:
@@ -171,25 +160,29 @@ namespace KINECTmania.GUI
                         CountdownDisplayer1.Visibility = Visibility.Visible;
                         Console.WriteLine("1... ");
                         break;
-                        
+
                     }
                 case 0:
                     {
                         CountdownDisplayer1.Visibility = Visibility.Hidden;
-                        Console.WriteLine("Info: Game starts now!");
+                        KinectStreamVisualizer.InvalidateVisual();
+
+                        await Task.Factory.StartNew(() => {
+                            PlayGameTAP.CallingInstance = this;
+                            PlayGameTAP.ArrowtravelLayer = this.arrowTravelLayer;
+                            PlayGameTAP.PlayGame(); 
+                            }, TaskCreationOptions.LongRunning);
+
                         break;
-                    } 
+                    }
             }
 
-            if (secondsBeforeGameStarts == 0)
+
+
+
+            if (secondsBeforeGameStarts > 0)
             {
-                OnRaiseCountdownFinished(new CountdownFinished());
-                Console.WriteLine("Info: CountdownFinished() published");
-            }
-            secondsBeforeGameStarts -= 1;
-
-            countdownTimer.Interval = new TimeSpan(0, 0, 1);
-            if (secondsBeforeGameStarts != -1){
+                countdownTimer.Interval = new TimeSpan(0, 0, 1);
                 countdownTimer.Start();
             }
         }
@@ -206,113 +199,125 @@ namespace KINECTmania.GUI
 
         #endregion
 
-        async private void playGame() //Called by an event handler (countdownTimer_Tick)
+    }
+
+    public static class PlayGameTAP
+    {
+        private static Song currentSong;
+        public static Song CurrentSong
         {
+            get { return currentSong; }
+            set { currentSong = value; }
+        }
+        private static List<ArrowMover> arrowmovers = new List<ArrowMover>();
+        public static List<ArrowMover> Arrowmovers
+        {
+            get { return arrowmovers; }
+            set { arrowmovers = value; }
+        }
+        private static int reactiontime;
+        public static int Reactiontime
+        {
+            get { return reactiontime; }
+            set { reactiontime = value; }
+        }
+        private static DateTime startupDate;
+        public static DateTime StartupDate
+        {
+            get { return startupDate; }
+            set { startupDate = value; }
+        }
+        private static int eventsRecieved;
+        public static int EventsRecieved
+        {
+            get { return eventsRecieved; }
+            set { eventsRecieved = value; }
+        }
+        private static Canvas arrowTravelLayer;
+        public static Canvas ArrowtravelLayer
+        {
+            get { return arrowTravelLayer; }
+            set { arrowTravelLayer = value; }
+        }
+        private static GamePage callingInstance;
+        public static GamePage CallingInstance
+        {
+            get { return callingInstance; }
+            set { callingInstance = value; }
+        }
+        public static void PlayGame() //Called by an event handler (countdownTimer_Tick)
+        {
+
             double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
             int lastNoteTriggered = 0;
-            Image[] imageBuffer = new Image[20];
-            while (IsLive())
+            ArrowMover currentArrowMover;
+
+            foreach (Note n in currentSong.GetNotes())
             {
-                if ((currentSong.GetNotes().Count > lastNoteTriggered) && (Now2ms() - startTime - reactiontime ) >= currentSong.GetNotes().ElementAt(lastNoteTriggered).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
+                currentArrowMover = new ArrowMover(currentSong.GetNotes().ElementAt(lastNoteTriggered).Position(), reactiontime);
+                arrowmovers.Add(currentArrowMover);
+                arrowTravelLayer.Children.Add(currentArrowMover.Arrow);
+                if (reactiontime < currentSong.GetNotes()[lastNoteTriggered].StartTime())
                 {
-
-                    ArrowMover temp = new ArrowMover(currentSong.GetNotes().ElementAt(lastNoteTriggered).Position(), reactiontime, GamePage.getArrowTravelLayer());
-                    Console.WriteLine("Info: new ArrowMover onject created");
-                    await Task.Run((Action) temp.moveImageUpwards);
-
+                    Canvas.SetTop(currentArrowMover.Arrow, currentArrowMover.Speed * (reactiontime / currentSong.GetNotes()[lastNoteTriggered].StartTime()));
+                    currentArrowMover.MovingState = 1;
+                }
+            }
+            while (IsLive(lastNoteTriggered))
+            {
+                if ((currentSong.GetNotes().Count > lastNoteTriggered) && (Now2ms() - startTime - reactiontime) >= currentSong.GetNotes().ElementAt(lastNoteTriggered).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
+                { //Pfeile hinzufügen
+                    currentArrowMover = arrowmovers[lastNoteTriggered];
+                    currentArrowMover.Arrow.Visibility = Visibility.Visible;
+                    currentArrowMover.MovingState = 1;
+                    Console.WriteLine("Info: next ArrowMover on it's way! @ " + DateTime.Now.ToString());
+                    moveImageUpwards(currentArrowMover);
+                    arrowTravelLayer.InvalidateVisual();
                     lastNoteTriggered++;
-                    
                 }
-            }
-        }
+                else
+                {
+                    currentArrowMover = null;
+                }
 
-        #region <Convenience methods + class for playGame()>
-        
-        public class ArrowMover
+                for (int i = 0; i < arrowmovers.Count; i++)
+                {
+                    if (currentArrowMover?.MovingState == 2)
+                    {
+                        arrowTravelLayer.Children.Remove(currentArrowMover.Arrow);
+                        arrowmovers.RemoveAt(i);
+                        Console.WriteLine("    Info: Removed an arrow @ " + DateTime.Now.ToString());
+                    }
+                }
+
+
+                //Thread.Sleep(1);
+            }
+            Console.WriteLine("Info: Game over!");
+            callingInstance.OnRaiseMenuStateChanged(new MenuStateChanged(0));
+
+
+        } //end of PlayGame() method
+
+        private static void moveImageUpwards(ArrowMover am)
         {
-            int code;
-            Image arrow;
-            int reactiontime;
-            Canvas c;
-            public ArrowMover(int code, int reactiontime, Canvas c)
+            Task t = Task.Run(() =>
             {
-                this.code = code;
-                this.arrow = arrowGenerator((short)code);
-                this.reactiontime = reactiontime;
-                this.c = c;
-            }
-
-            private void destroyME()
-            {
-                arrow.Visibility = Visibility.Hidden;
-                arrow = null;
-                code = 0;
-                reactiontime = 0;
-
-            }
-
-            public void moveImageUpwards() //reactiontime in ms
-            {
-                double speed = System.Windows.SystemParameters.PrimaryScreenHeight / reactiontime; // px/ms
-                c.Children.Add(arrow);
-                while (Canvas.GetTop(arrow) > -50) // solange das Event für die Position der Note noch nicht gefeurt wurde, mach bitte das: (Bedingung (Canvas.GetTop(arrow) > 50) dann bitte ersetzen)
+                this.Dispatcher.Invoke((Action)(() =>
                 {
-                    Canvas.SetTop(arrow, Canvas.GetTop(arrow) - speed);
-                    Thread.Sleep(1);
-                }
-                //nach dem while:
-                c.Children.Remove(arrow);
-                destroyME();
-            }
-
-            private static Image arrowGenerator(short direction)
-            {
-
-                Image retVal = new Image();
-                switch (direction)
-                {
-                    case 1:
-                        retVal.Source = new BitmapImage(new Uri(@"/res/f_up.gif", UriKind.Relative));
-                        Canvas.SetLeft(retVal, 1350);
-                        Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 50);
-                        retVal.Width = 100;
-                        retVal.Height = 100;
-                        retVal.Visibility = Visibility.Visible;
-                        
-                        return retVal;
-                    case 2:
-                        retVal.Source = new BitmapImage(new Uri(@"/res/f_down.gif", UriKind.Relative));
-                        Canvas.SetLeft(retVal, 1500);
-                        Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 50);
-                        retVal.Width = 100;
-                        retVal.Height = 100;
-                        retVal.Visibility = Visibility.Visible;
-                        return retVal;
-                    case 3:
-                        retVal.Source = new BitmapImage(new Uri(@"/res/f_left.gif", UriKind.Relative));
-                        Canvas.SetLeft(retVal, 1650);
-                        Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 50);
-                        retVal.Width = 100;
-                        retVal.Height = 100;
-                        retVal.Visibility = Visibility.Visible;
-                        return retVal;
-                    case 4:
-                        retVal.Source = new BitmapImage(new Uri(@"/res/f_right.gif", UriKind.Relative));
-                        Canvas.SetLeft(retVal, 1800);
-                        Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight + 50);
-                        retVal.Width = 100;
-                        retVal.Height = 100;
-                        retVal.Visibility = Visibility.Visible;
-                        return retVal;
-                    default:
-                        throw new Exception("Error: Wrong code for arrow specified (Method name: KINECTmania.GUI.GamePage.arrowGenerator(short direction)");
-                }
-            } //end of arrowGenerator(short code)
-        
-            
+                    while (Canvas.GetTop(am.Arrow) > -100 && am.MovingState == 1)
+                    {
+                        Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
+                        Action emptyDelegate = delegate { };
+                        arrowTravelLayer.InvalidateVisual();
+                    }
+                    am.MovingState = 2;
+                }));
+            });
+            t.Wait();
         }
 
-        private double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
+        private static double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
         {
             DateTime now = DateTime.Now;
             if (now.Day == startupDate.Day)
@@ -325,20 +330,93 @@ namespace KINECTmania.GUI
             }
         }
 
-        private bool IsLive()
+        private static bool IsLive(int lastNoteTriggered)
         {
-            
-            if (currentSong.GetNotes().Count <= eventsRecieved)
+
+            if (currentSong.GetNotes().Count <= eventsRecieved || currentSong.GetNotes().Count <= lastNoteTriggered)
             {
                 return false;
             }
             return true;
         }
-        #endregion
+    }
 
         
-                
-    }
+
+    #region <Convenience methods + class for playGame()>
+
+    public class ArrowMover
+    {
+        int code;
+        Image arrow;
+        public Image Arrow { get { return arrow; } }
+        int movingState = 0;
+        double speed;
+        public double Speed {  get { return speed; } }
+        public int MovingState
+        {
+            get { return movingState; }
+            set { movingState = value; }
+        }
+        public ArrowMover(int code, int reactiontime)
+        {
+            this.code = code;
+            this.arrow = arrowGenerator((short)code);
+            speed = System.Windows.SystemParameters.PrimaryScreenHeight / reactiontime; //in px/ms
+        }
+        private void destroyME()
+        {
+            arrow.Visibility = Visibility.Hidden;
+            arrow = null;
+            code = 0;
+        }
+        private static Image arrowGenerator(short direction)
+        {
+                         Image retVal = new Image();
+            switch (direction)
+            {
+                case 1:
+                    retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_up.gif", UriKind.Absolute));
+                    Canvas.SetLeft(retVal, 1350);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    retVal.Width = 100;
+                    retVal.Height = 100;
+                    retVal.Visibility = Visibility.Visible;
+                    
+                    return retVal;
+                case 2:
+                    retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_down.gif", UriKind.Absolute));
+                    Canvas.SetLeft(retVal, 1500);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    retVal.Width = 100;
+                    retVal.Height = 100;
+                    retVal.Visibility = Visibility.Visible;
+                    return retVal;
+                case 3:
+                    retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_left.gif", UriKind.Absolute));
+                    Canvas.SetLeft(retVal, 1650);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    retVal.Width = 100;
+                    retVal.Height = 100;
+                    retVal.Visibility = Visibility.Visible;
+                    return retVal;
+                case 4:
+                    retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_right.gif", UriKind.Absolute));
+                    Canvas.SetLeft(retVal, 1800);
+                    Canvas.SetTop(retVal, System.Windows.SystemParameters.PrimaryScreenHeight - 1050);
+                    retVal.Width = 100;
+                    retVal.Height = 100;
+                    retVal.Visibility = Visibility.Visible;
+                    return retVal;
+                default:
+                    throw new Exception("Error: Wrong code for arrow specified (Method name: KINECTmania.GUI.GamePage.arrowGenerator(short direction)");
+            }
+             //end of arrowGenerator(short code)  
+        }
+
+        
+        #endregion
+
 
     #region Class for DrawPoint(...)
     public static class Draw2Canvas
