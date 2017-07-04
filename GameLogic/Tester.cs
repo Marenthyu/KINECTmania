@@ -38,7 +38,7 @@ namespace KINECTmania.GameLogic
             Console.WriteLine("Got event. Note: " + gameEventArgs.Note + "; Accuracy: " + gameEventArgs.Accuracy + "; Points: " + gameEventArgs.Points);
         }
 
-        public static void playMedia()
+        public static void PlayMedia()
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.CheckFileExists = true;

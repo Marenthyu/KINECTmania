@@ -161,6 +161,5 @@ namespace KINECTmania.GUI
             }
             return false;
         }
-
     }
 }
