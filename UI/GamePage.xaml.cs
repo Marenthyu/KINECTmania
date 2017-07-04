@@ -253,31 +253,31 @@ namespace KINECTmania.GUI
         {
 
             double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
-            int lastNoteTriggered = 0;
+            int lastNoteStarted = 0;
             ArrowMover currentArrowMover;
 
             foreach (Note n in currentSong.GetNotes())
             {
-                currentArrowMover = new ArrowMover(currentSong.GetNotes().ElementAt(lastNoteTriggered).Position(), reactiontime);
+                currentArrowMover = new ArrowMover(currentSong.GetNotes().ElementAt(lastNoteStarted).Position(), reactiontime);
                 arrowmovers.Add(currentArrowMover);
                 arrowTravelLayer.Children.Add(currentArrowMover.Arrow);
-                if (reactiontime < currentSong.GetNotes()[lastNoteTriggered].StartTime())
+                if (reactiontime < currentSong.GetNotes()[lastNoteStarted].StartTime())
                 {
-                    Canvas.SetTop(currentArrowMover.Arrow, currentArrowMover.Speed * (reactiontime / currentSong.GetNotes()[lastNoteTriggered].StartTime()));
+                    Canvas.SetTop(currentArrowMover.Arrow, currentArrowMover.Speed * (reactiontime / currentSong.GetNotes()[lastNoteStarted].StartTime()));
                     currentArrowMover.MovingState = 1;
                 }
             }
-            while (IsLive(lastNoteTriggered))
+            while (IsLive(lastNoteStarted))
             {
-                if ((currentSong.GetNotes().Count > lastNoteTriggered) && (Now2ms() - startTime - reactiontime) >= currentSong.GetNotes().ElementAt(lastNoteTriggered).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
+                if ((currentSong.GetNotes().Count > lastNoteStarted) && (Now2ms() - startTime - reactiontime) >= currentSong.GetNotes().ElementAt(lastNoteStarted).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
                 { //Pfeile hinzufügen
-                    currentArrowMover = arrowmovers[lastNoteTriggered];
+                    currentArrowMover = arrowmovers[lastNoteStarted];
                     currentArrowMover.Arrow.Visibility = Visibility.Visible;
                     currentArrowMover.MovingState = 1;
                     Console.WriteLine("Info: next ArrowMover on it's way! @ " + DateTime.Now.ToString());
                     moveImageUpwards(currentArrowMover);
                     arrowTravelLayer.InvalidateVisual();
-                    lastNoteTriggered++;
+                    lastNoteStarted++;
                 }
                 else
                 {
@@ -294,27 +294,27 @@ namespace KINECTmania.GUI
                     }
                     if (currentArrowMover?.MovingState == 1)
                     {
-
+                        moveImageUpwards(arrowmovers[i]);
                     }
                 }
 
-
+                arrowTravelLayer.InvalidateVisual();
                 //Thread.Sleep(1);
             }
             Console.WriteLine("Info: Game over!");
-            callingInstance.OnRaiseMenuStateChanged(new MenuStateChanged(0));
+            //callingInstance.OnRaiseMenuStateChanged(new MenuStateChanged(0));
 
 
         } //end of PlayGame() method
 
         private static void moveImageUpwards(ArrowMover am)
-        {            
+        {
             if (Canvas.GetTop(am.Arrow) > -100 && am.MovingState == 1)
             {
                 Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
                 arrowTravelLayer.InvalidateVisual();
             }
-            am.MovingState = 2;
+            else { am.MovingState = 2; }
 
         }
 
@@ -351,7 +351,7 @@ namespace KINECTmania.GUI
         int code;
         Image arrow;
         public Image Arrow { get { return arrow; } }
-        int movingState = 0;
+        int movingState = 0; //0: Remain at the bottom | 1: Moving up | 2: Reached top
         double speed;
         public double Speed { get { return speed; } }
         public int MovingState
