@@ -147,9 +147,9 @@ namespace KINECTmania.GUI
                                 foreach (Note n in currentSong.Notes)
                                 {
                                     ArrowMover newAM = new ArrowMover(n.Position(), reactiontime, arrowTravelLayer);
-                                    if(reactiontime < n.StartTime())
+                                    if(reactiontime > n.StartTime())
                                     {
-                                        Canvas.SetTop(newAM.Arrow, SystemParameters.PrimaryScreenHeight * (n.StartTime() / reactiontime));
+                                        Canvas.SetTop(newAM.Arrow, SystemParameters.PrimaryScreenHeight * (n.StartTime() / reactiontime) + 100);
                                         newAM.MovingState = 1;
                                     }
                                     arrowMovers.Add(newAM);
@@ -247,8 +247,8 @@ namespace KINECTmania.GUI
         #endregion
 
     }
+    #region <Convenience methods + class for playGame()>
 
-    
     public static class PlayGameTAP
     {
         private static Song currentSong;
@@ -295,7 +295,7 @@ namespace KINECTmania.GUI
         }
 
         #region deprecated PlayGame() method
-        [Obsolete("Wird nicht mehr grbraucht, da ingameClock_Tick diese aufgabe jetzt übernimmt")]
+        [Obsolete("Wird nicht mehr grbraucht, da ingameClock_Tick diese Aufgabe jetzt übernimmt")]
         async public static void PlayGame() //Called by an event handler (countdownTimer_Tick)
         {
 
@@ -361,6 +361,7 @@ namespace KINECTmania.GUI
 
         #endregion
 
+        [Obsolete("Aufgabe wird ab jetzt von der ingameClock_Timer() übernommen")]
         async private static Task moveImageUpwards(ArrowMover am)
         {
             
@@ -407,7 +408,7 @@ namespace KINECTmania.GUI
 
 
 
-    #region <Convenience methods + class for playGame()>
+    
 
     public class ArrowMover
     {
