@@ -21,7 +21,7 @@
         <Button x:Name="OpenSongBtn" Content="Open..." HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" Margin="1333,234,0,0" Height="63" FontSize="40" Click="OpenSong"/>
         <Separator HorizontalAlignment="Left" Height="19" Margin="10,342,0,0" VerticalAlignment="Top" Width="1916"/>
         <Label x:Name="ReactionTimeMeasurer" Content="müll"  HorizontalAlignment="Left" Margin="1333,399,0,0" VerticalAlignment="Top" FontSize="40"/>
-        <Slider x:Name="ReactionTimeChanger" HorizontalAlignment="Left" Height="36" Margin="528,426,0,0" VerticalAlignment="Top" Width="800" IsEnabled="False" Value="2600" Maximum="2000" Minimum="400" SmallChange="100" TickFrequency="100" IsSnapToTickEnabled="True" ValueChanged="ReactionTimeChanger_ValueChanged" FontSize="40" TickPlacement="BottomRight" LargeChange="100"/>
+        <Slider x:Name="ReactionTimeChanger" HorizontalAlignment="Left" Height="36" Margin="528,426,0,0" VerticalAlignment="Top" Width="800" IsEnabled="False" Value="1200" Maximum="2000" Minimum="400" SmallChange="100" TickFrequency="100" IsSnapToTickEnabled="True" ValueChanged="ReactionTimeChanger_ValueChanged" FontSize="40" TickPlacement="BottomRight" LargeChange="100"/>
         <Label x:Name="ReactionTimeInfo" Content="Reaction Time:" HorizontalAlignment="Left" Margin="246,399,0,0" VerticalAlignment="Top" FontSize="40"/>
         
 

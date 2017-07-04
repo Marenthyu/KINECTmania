@@ -167,11 +167,12 @@ namespace KINECTmania.GUI
                         CountdownDisplayer1.Visibility = Visibility.Hidden;
                         KinectStreamVisualizer.InvalidateVisual();
 
+                        
                         await Task.Factory.StartNew(() => {
                             PlayGameTAP.CallingInstance = this;
                             PlayGameTAP.ArrowtravelLayer = this.arrowTravelLayer;
                             PlayGameTAP.PlayGame(); 
-                            }, TaskCreationOptions.LongRunning);
+                            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
 
                         break;
                     }
@@ -201,6 +202,7 @@ namespace KINECTmania.GUI
 
     }
 
+    
     public static class PlayGameTAP
     {
         private static Song currentSong;
@@ -227,7 +229,7 @@ namespace KINECTmania.GUI
             get { return startupDate; }
             set { startupDate = value; }
         }
-        private static int eventsRecieved;
+        private static int eventsRecieved = 0;
         public static int EventsRecieved
         {
             get { return eventsRecieved; }
@@ -245,6 +247,8 @@ namespace KINECTmania.GUI
             get { return callingInstance; }
             set { callingInstance = value; }
         }
+
+        
         public static void PlayGame() //Called by an event handler (countdownTimer_Tick)
         {
 
@@ -288,6 +292,10 @@ namespace KINECTmania.GUI
                         arrowmovers.RemoveAt(i);
                         Console.WriteLine("    Info: Removed an arrow @ " + DateTime.Now.ToString());
                     }
+                    if (currentArrowMover?.MovingState == 1)
+                    {
+
+                    }
                 }
 
 
@@ -300,21 +308,14 @@ namespace KINECTmania.GUI
         } //end of PlayGame() method
 
         private static void moveImageUpwards(ArrowMover am)
-        {
-            Task t = Task.Run(() =>
+        {            
+            if (Canvas.GetTop(am.Arrow) > -100 && am.MovingState == 1)
             {
-                this.Dispatcher.Invoke((Action)(() =>
-                {
-                    while (Canvas.GetTop(am.Arrow) > -100 && am.MovingState == 1)
-                    {
-                        Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
-                        Action emptyDelegate = delegate { };
-                        arrowTravelLayer.InvalidateVisual();
-                    }
-                    am.MovingState = 2;
-                }));
-            });
-            t.Wait();
+                Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
+                arrowTravelLayer.InvalidateVisual();
+            }
+            am.MovingState = 2;
+
         }
 
         private static double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
@@ -341,7 +342,7 @@ namespace KINECTmania.GUI
         }
     }
 
-        
+
 
     #region <Convenience methods + class for playGame()>
 
@@ -352,7 +353,7 @@ namespace KINECTmania.GUI
         public Image Arrow { get { return arrow; } }
         int movingState = 0;
         double speed;
-        public double Speed {  get { return speed; } }
+        public double Speed { get { return speed; } }
         public int MovingState
         {
             get { return movingState; }
@@ -372,7 +373,7 @@ namespace KINECTmania.GUI
         }
         private static Image arrowGenerator(short direction)
         {
-                         Image retVal = new Image();
+            Image retVal = new Image();
             switch (direction)
             {
                 case 1:
@@ -382,7 +383,7 @@ namespace KINECTmania.GUI
                     retVal.Width = 100;
                     retVal.Height = 100;
                     retVal.Visibility = Visibility.Visible;
-                    
+
                     return retVal;
                 case 2:
                     retVal.Source = new BitmapImage(new Uri(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + @"/UI/res/f_down.gif", UriKind.Absolute));
@@ -411,8 +412,9 @@ namespace KINECTmania.GUI
                 default:
                     throw new Exception("Error: Wrong code for arrow specified (Method name: KINECTmania.GUI.GamePage.arrowGenerator(short direction)");
             }
-             //end of arrowGenerator(short code)  
+            //end of arrowGenerator(short code)  
         }
+    }
 
         
         #endregion
@@ -464,7 +466,7 @@ namespace KINECTmania.GUI
             //draw Ellipse e on Canvas canvas
             canvas.Children.Add(e);
         }
-    }
+    } //End of class Draw2Canvas
 
     #endregion
 
