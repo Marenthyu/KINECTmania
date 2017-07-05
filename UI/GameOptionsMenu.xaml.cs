@@ -83,7 +83,9 @@ namespace KINECTmania.GUI
                 FileLocationMeasurer.Text = ofd.FileName;
                 this.StartGameBtn.IsEnabled = true;
                 ReactionTimeChanger.IsEnabled = true;
-                OnRaiseSongLoaded(new SongLoaded(new Song(ofd.FileName))); //Todo: Durch gamestatemanager.LoadSong(...) ersetzen
+                 //Todo: Durch gamestatemanager.LoadSong(...) ersetzen
+                Song loaded = App.Gms.LoadSong(ofd.FileName);
+                OnRaiseSongLoaded(new SongLoaded(loaded));
             }
         }
 

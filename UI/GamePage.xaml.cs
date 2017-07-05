@@ -30,11 +30,11 @@ namespace KINECTmania.GUI
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         private System.Windows.Threading.DispatcherTimer countdownTimer, ingameClock, gameoverClock;
-        private int secondsBeforeGameStarts = 5;
+        private int secondsBeforeGameStarts;
         static GamePage staticGamePage;
         List<ArrowMover> arrowMovers;
         Song currentSong;
-        int reactiontime, lastNoteStarted;
+        int reactiontime, lastNoteStarted, lastNoteReachedTop;
         double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
 
         public GamePage()
@@ -55,6 +55,7 @@ namespace KINECTmania.GUI
         public static Canvas getKinectStreamVisualizer() //Für kinectDataInput.ImageProcessing(...)
         {
             return staticGamePage.KinectStreamVisualizer;
+            
         }
 
         public static Canvas getArrowTravelLayer()
@@ -110,11 +111,15 @@ namespace KINECTmania.GUI
             if (e.MenuState == 3)
             {
                 countdownTimer.Start();
-                //    kinectDataInput kdi = new kinectDataInput();      UNCOMMENT ME WHEN
-                //    kdi.Start();                                      WE GOT A KINECT
-                //    kdi.Stop();                                       PLUGGED IN
+                //KinectDataInput kdi = new KinectDataInput(); //UNCOMMENT ME WHEN
+                //kdi.Start(); //WE GOT A KINECT
+                             //kdi.Stop(); PLUGGED IN
+                //KinectStreamVisualizer. = kdi.GetFrameStream();
                 PlayGameTAP.StartupDate = DateTime.Today;
-                
+                secondsBeforeGameStarts = 5;
+                startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
+                lastNoteReachedTop = lastNoteStarted = 0;
+
 
             }
         }
@@ -185,13 +190,10 @@ namespace KINECTmania.GUI
                         await Task.Factory.StartNew( () => { CountdownDisplayer1.Visibility = Visibility.Hidden; }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
                         ingameClock.Start();
 
-                        
-                        //await Task.Factory.StartNew(() => {
-                        //    PlayGameTAP.CallingInstance = this;
-                        //    PlayGameTAP.ArrowtravelLayer = this.arrowTravelLayer;
-                        //    PlayGameTAP.PlayGame(); 
-                        //    }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
-                        
+                        App.Gms.RaiseGameEvent += Gms_RaiseGameEvent;
+
+                        App.Gms.Start();
+
                         break;
                     }
             }
@@ -200,6 +202,11 @@ namespace KINECTmania.GUI
                 countdownTimer.Interval = new TimeSpan(0, 0, 1);
                 countdownTimer.Start();
             }
+        }
+
+        private void Gms_RaiseGameEvent(object sender, GameEventArgs e)
+        {
+            //TODO Implemeteren, wenn GamestateMEanager Event erzeugt
         }
 
         void ingameClock_Tick(object sender, EventArgs e)
@@ -220,10 +227,11 @@ namespace KINECTmania.GUI
                         currentArrowMover.MovingState = 2;
                         currentArrowMover.destroyME();
                         arrowMovers.RemoveAt(i);
+                        lastNoteReachedTop++;
                     }
                 }
             }
-            if (lastNoteStarted - 1 != currentSong.Notes.Count)
+            if (lastNoteReachedTop < currentSong.Notes.Count)
             {
                 ingameClock.Start();
             }
@@ -232,10 +240,15 @@ namespace KINECTmania.GUI
                 Console.WriteLine("Game Over!");
                 gameoverClock.Start();
             }
+            if (!arrowMovers.Any())
+            {
+                ingameClock.Stop();
+            }
         }
 
         void gameoverClock_Tick (object Sender, EventArgs e)
         {
+            gameoverClock.Stop();
             OnRaiseMenuStateChanged(new MenuStateChanged(0));
         }
 

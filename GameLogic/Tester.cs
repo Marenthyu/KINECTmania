@@ -24,7 +24,7 @@ namespace KINECTmania.GameLogic
 
             gms.RaiseGameEvent += GmsOnRaiseGameEvent;
 
-            gms.LoadSong("C:\\Users\\Peter Fredebold\\Downloads\\ShakeItOff.kmsf");
+            gms.LoadSong("C:\\Users\\justi\\Downloads\\ShakeItOff.kmsf");
             gms.Start();
             Thread.Sleep(1000);
             gms.RaiseDummyEvent();
