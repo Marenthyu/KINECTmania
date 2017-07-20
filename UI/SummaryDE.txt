@@ -1,4 +1,4 @@
-﻿In diesem Ordner geht es hauptsächlich um die GUI des KINECTMania-Spiels. Hier sind also die ganzen Pages definiert und so.
+In diesem Ordner geht es hauptsächlich um die GUI des KINECTMania-Spiels. Hier sind also die ganzen Pages definiert und so.
 
 Jedes Menü wird über eine eigene Page realisiert, welches nur entsprechend auf das Fenser geklatscht wird. Dies wird über das MenuStateChanged-Event realisiert. Leider muss so jede Page von Anfang an 
 in den Hintergrund geladen werden... Da der Kinect-Datenstrom aber nur bei Bedarf fließt, sollte dies kein großes Performance-Hindernis sein, zumal die Menüs einfach aufgebaut sind.
