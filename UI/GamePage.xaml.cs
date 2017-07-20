@@ -36,7 +36,10 @@ namespace KINECTmania.GUI
         Song currentSong;
         int reactiontime, lastNoteStarted, lastNoteReachedTop;
         double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
-
+        private BitmapImage colorBitmap = new BitmapImage();
+        private int colorBitmapStride = 0;
+        public ImageSource sauce { get { return colorBitmap; } }
+        KinectDataInput kdi;
         public GamePage()
         {
             InitializeComponent();
@@ -106,19 +109,23 @@ namespace KINECTmania.GUI
 
         //Actual Event handling
 
-        void HandleMenuStateChanged(object sender, MenuStateChanged e)
+        /*async*/ void HandleMenuStateChanged(object sender, MenuStateChanged e)
         {
             if (e.MenuState == 3)
             {
                 countdownTimer.Start();
-                //KinectDataInput kdi = new KinectDataInput(); //UNCOMMENT ME WHEN
-                //kdi.Start(); //WE GOT A KINECT
-                             //kdi.Stop(); PLUGGED IN
-                //KinectStreamVisualizer. = kdi.GetFrameStream();
+                kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
                 PlayGameTAP.StartupDate = DateTime.Today;
                 secondsBeforeGameStarts = 5;
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
                 lastNoteReachedTop = lastNoteStarted = 0;
+
+                kdi.Start(); //WE GOT A KINECT //PLUGGED IN
+                //colorBitmap = new WriteableBitmap((int)SystemParameters.MaximizedPrimaryScreenWidth, (int)SystemParameters.MaximizedPrimaryScreenHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+                //colorBitmapStride = (int)colorBitmap.Width * ((colorBitmap.Format.BitsPerPixel + 7) / 8);
+                colorBitmap = new BitmapImage();
+                colorBitmap.StreamSource = kdi.GetFrameStream();
+                //await Task.Factory.StartNew(() => drawStream(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
 
 
             }
@@ -194,6 +201,7 @@ namespace KINECTmania.GUI
 
                         App.Gms.Start();
 
+                        
                         break;
                     }
             }
@@ -204,6 +212,12 @@ namespace KINECTmania.GUI
             }
         }
 
+        private void drawStream()
+        {
+            
+            
+        }
+
         private void Gms_RaiseGameEvent(object sender, GameEventArgs e)
         {
             //TODO Implemeteren, wenn GamestateMEanager Event erzeugt
@@ -211,7 +225,8 @@ namespace KINECTmania.GUI
 
         void ingameClock_Tick(object sender, EventArgs e)
         {
-            for(int i = 0; i < arrowMovers.Count; i++)
+            
+            for (int i = 0; i < arrowMovers.Count; i++)
             {
                 ArrowMover currentArrowMover = arrowMovers[i];
                 if (currentArrowMover.MovingState == 0 && PlayGameTAP.Now2ms() - startTime >= (currentSong.Notes[lastNoteStarted].Position() - reactiontime))
@@ -249,6 +264,7 @@ namespace KINECTmania.GUI
         void gameoverClock_Tick (object Sender, EventArgs e)
         {
             gameoverClock.Stop();
+            kdi.Stop();
             OnRaiseMenuStateChanged(new MenuStateChanged(0));
         }
 
@@ -496,7 +512,7 @@ namespace KINECTmania.GUI
                     retVal.Visibility = Visibility.Visible;
                     return retVal;
                 default:
-                    throw new Exception("Error: Wrong code for arrow specified (Method name: KINECTmania.GUI.GamePage.arrowGenerator(short direction)");
+                    throw new ArgumentException("Error: Wrong code for arrow specified (Method name: KINECTmania.GUI.GamePage.arrowGenerator(short direction)");
             }
             //end of arrowGenerator(short code)  
         }

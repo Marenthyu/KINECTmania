@@ -100,5 +100,10 @@ namespace KINECTmania.GUI
                 ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + ",0 s";
             }
         }
+
+        private void StartGameBtn_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }

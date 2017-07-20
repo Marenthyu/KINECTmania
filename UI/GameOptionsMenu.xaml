@@ -15,7 +15,7 @@
                 <ImageBrush ImageSource="res/f_left.gif"/>
             </Button.Background>
         </Button>
-        <Button x:Name="StartGameBtn" Content="Start Game!" HorizontalAlignment="Left" Margin="1626,976,0,0" VerticalAlignment="Top" Width="300" FontSize="40" Height="70" Click="StartGameBtn_Click" IsEnabled="False"/>
+        <Button x:Name="StartGameBtn" Content="Start Game!" HorizontalAlignment="Left" Margin="1626,976,0,0" VerticalAlignment="Top" Width="300" FontSize="40" Height="70" Click="StartGameBtn_Click" IsEnabled="False" MouseDown="StartGameBtn_MouseDown"/>
         <Label x:Name="LoadSongInfo" Content="Load Song:" HorizontalAlignment="Left" Margin="306,234,0,0" VerticalAlignment="Top" FontSize="40" Width="207" Height="63"/>
         <TextBox x:Name="FileLocationMeasurer" HorizontalAlignment="Left" Height="63" Margin="528,234,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="800" FontSize="40" IsEnabled="False" SelectionOpacity="0"/>
         <Button x:Name="OpenSongBtn" Content="Open..." HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" Margin="1333,234,0,0" Height="63" FontSize="40" Click="OpenSong"/>

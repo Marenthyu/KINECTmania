@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using KINECTmania.GUI;
+using System.Threading;
 
 namespace KINECTmania.kinectProcessing
 {
@@ -25,7 +26,11 @@ namespace KINECTmania.kinectProcessing
         private float buttonSize = 0.3F;
         private MultiSourceFrameReader multiSource = null;
         private System.Windows.Controls.Canvas canvas;
-
+        private ColorFrame currentCF;
+        public ColorFrame CurrentColorFrame
+        {
+            get { return currentCF; }
+        }
         public static ArrowHitPublisher arrowPub = new ArrowHitPublisher();
         public KinectDataInput()
         {
@@ -48,21 +53,29 @@ namespace KINECTmania.kinectProcessing
         }
         public MemoryStream GetFrameStream() { return this.FrameStream; }
 
-        public void Start()
+        async public void Start()
         {
             if (kSensor == null || multiSource == null) { InitialiseKinect(); }
             //if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
+            kSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
+
             if (keepRunning != true)
             {
                 keepRunning = true;
-                while (keepRunning)
-                {
-                    if (multiSource != null)
+                bool subscriberYetToSet = true;
+                //while (keepRunning)
+                //{
+                    if (subscriberYetToSet)
                     {
                         multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
+                        subscriberYetToSet = false;
+                        
+
                     }
-                }
+                //}
             }
+
+
         }
         public void Stop()
         {
@@ -337,6 +350,7 @@ namespace KINECTmania.kinectProcessing
 
         private void Imageprocessing(ColorFrame cf)
         {
+            currentCF = cf;
             Console.WriteLine("Imageprocessing");
             int width = cf.FrameDescription.Width;
             int height = cf.FrameDescription.Height;
@@ -367,7 +381,9 @@ namespace KINECTmania.kinectProcessing
         {
             try
             {
+                Console.WriteLine("Habe in Stream geschrieben");
                 await FrameStream.WriteAsync(pixels, 0, pixels.Length);
+                
             }
             catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
         }
