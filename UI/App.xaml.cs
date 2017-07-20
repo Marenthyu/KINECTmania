@@ -1,4 +1,4 @@
-﻿using KINECTmania.GameLogic;
+using KINECTmania.GameLogic;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
