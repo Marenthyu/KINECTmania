@@ -62,17 +62,10 @@ namespace KINECTmania.kinectProcessing
             if (keepRunning != true)
             {
                 keepRunning = true;
-                bool subscriberYetToSet = true;
-                //while (keepRunning)
-                //{
-                    if (subscriberYetToSet)
-                    {
-                        multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
-                        subscriberYetToSet = false;
+                multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
                         
 
-                    }
-                //}
+                
             }
 
 
@@ -97,6 +90,7 @@ namespace KINECTmania.kinectProcessing
             {
                 //starts the Kinect
                 kSensor.Open();
+                
                 Console.WriteLine($"Available: {kSensor.IsAvailable}");
                 Console.WriteLine($"UniqueKinectId: {kSensor.UniqueKinectId}");
             }
@@ -110,17 +104,25 @@ namespace KINECTmania.kinectProcessing
 
         private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            if (e.FrameReference.AcquireFrame() != null)
+            Console.WriteLine("Frame arrived");
+            var frame = e.FrameReference.AcquireFrame();
+            if (frame != null)
             {
-                if (e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame() != null)
+                var bodyFrame = frame.BodyFrameReference.AcquireFrame();
+                if (bodyFrame != null)
                 {
-                    ArrowDetection(e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
+                    ArrowDetection(bodyFrame);
+                    bodyFrame.Dispose();
+
                 }
-                if (e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame() != null)
+                var colorFrame = frame.ColorFrameReference.AcquireFrame();
+                if (colorFrame != null)
                 {
-                    Imageprocessing(e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame());
+                    Imageprocessing(colorFrame);
+                    colorFrame.Dispose();
                 }
             }
+            
         }
 
         private void ArrowDetection(BodyFrame bodyFrame)
