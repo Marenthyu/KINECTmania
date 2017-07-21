@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +46,7 @@ namespace KINECTmania.GUI
         static List<ArrowMover> toRemove = new List<ArrowMover>();
         public static Grid TargetGrid;
         private static int accuracyDisplayRemaining = 0;
+        private readonly double yOffset;
 
         public GamePage()
         {
@@ -63,6 +64,7 @@ namespace KINECTmania.GUI
             LeftTarget = leftTarget;
             TargetGrid = targetGrid;
             App.Gms.RaiseGameEvent += Gms_RaiseGameEvent;
+            yOffset = GamePage.UpTarget.TransformToVisual(GamePage.TargetGrid).Transform(new Point(0, 0)).Y;
         }
 
         public static Canvas getKinectStreamVisualizer() //Für kinectDataInput.ImageProcessing(...)
@@ -169,8 +171,8 @@ namespace KINECTmania.GUI
                                 foreach (Note n in currentSong.Notes)
                                 {
                                     ArrowMover newAM = new ArrowMover(n, reactiontime, arrowTravelLayer);
-                                    Canvas.SetTop(newAM.Arrow, (SystemParameters.PrimaryScreenHeight * (n.StartTime() / (double)reactiontime)) + 100);
-                                    Console.WriteLine("Setting top to: {0}", (SystemParameters.PrimaryScreenHeight * (n.StartTime() / (double)reactiontime)) + 100);
+                                    Canvas.SetTop(newAM.Arrow, (SystemParameters.PrimaryScreenHeight * (n.StartTime() / (double)reactiontime)) + yOffset);
+                                    Console.WriteLine("Setting top to: {0}", (SystemParameters.PrimaryScreenHeight * (n.StartTime() / (double)reactiontime)) + yOffset);
                                     if (reactiontime > n.StartTime())
                                     {
                                         newAM.MovingState = 1;
@@ -263,6 +265,7 @@ namespace KINECTmania.GUI
             
             double commonValue = SystemParameters.PrimaryScreenHeight / (double)reactiontime;
             long lastElapsed = 0;
+            
             try
             {
                 while (true)
@@ -307,7 +310,7 @@ namespace KINECTmania.GUI
                                     try
                                     {
                                         Canvas.SetTop(currentArrowMover.Arrow,
-                                            (currentArrowMover.note.StartTime() * commonValue + 100) -
+                                            (currentArrowMover.note.StartTime() * commonValue + yOffset) -
                                             (elapsed * commonValue));
                                     }
                                     catch
