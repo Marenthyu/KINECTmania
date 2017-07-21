@@ -45,6 +45,7 @@ namespace KINECTmania.GUI
         public static Image DownTarget, RightTarget, UpTarget, LeftTarget;
         static List<ArrowMover> toRemove = new List<ArrowMover>();
         public static Grid TargetGrid;
+        private static int accuracyDisplayRemaining = 0;
 
         public GamePage()
         {
@@ -52,7 +53,6 @@ namespace KINECTmania.GUI
             countdownTimer = new System.Windows.Threading.DispatcherTimer(); //This timer will realize a countdown before the game starts, similiar to a "ready, set go!" before the start of a race
             countdownTimer.Tick += new EventHandler(countdownTimer_Tick);
             countdownTimer.Interval = new TimeSpan(0, 0, 1); //Timespan(hours, minutes, seconds)
-            ingameClock = new Thread(mainLoop);
             gameoverClock = new DispatcherTimer();
             gameoverClock.Tick += new EventHandler(gameoverClock_Tick);
             gameoverClock.Interval = new TimeSpan(0, 0, 3);
@@ -62,6 +62,7 @@ namespace KINECTmania.GUI
             UpTarget = upTarget;
             LeftTarget = leftTarget;
             TargetGrid = targetGrid;
+            App.Gms.RaiseGameEvent += Gms_RaiseGameEvent;
         }
 
         public static Canvas getKinectStreamVisualizer() //Für kinectDataInput.ImageProcessing(...)
@@ -118,22 +119,22 @@ namespace KINECTmania.GUI
 
         //Actual Event handling
 
-        /*async*/ void HandleMenuStateChanged(object sender, MenuStateChanged e)
+        void HandleMenuStateChanged(object sender, MenuStateChanged e)
         {
             if (e.MenuState == 3)
             {
                 countdownTimer.Start();
-                kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
+                //kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
                 PlayGameTAP.StartupDate = DateTime.Today;
                 secondsBeforeGameStarts = 5;
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
                 dealtNotes = lastNoteStarted = 0;
-
-                kdi.Start(); //WE GOT A KINECT //PLUGGED IN
+                ingameClock = new Thread(mainLoop);
+                //new Thread(kdi.Start).Start();
                 //colorBitmap = new WriteableBitmap((int)SystemParameters.MaximizedPrimaryScreenWidth, (int)SystemParameters.MaximizedPrimaryScreenHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                 //colorBitmapStride = (int)colorBitmap.Width * ((colorBitmap.Format.BitsPerPixel + 7) / 8);
-                colorBitmap = new BitmapImage();
-                colorBitmap.StreamSource = kdi.GetFrameStream();
+                //colorBitmap = new BitmapImage();
+                //colorBitmap.StreamSource = kdi.GetFrameStream();
                 //await Task.Factory.StartNew(() => drawStream(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
 
 
@@ -168,8 +169,8 @@ namespace KINECTmania.GUI
                                 foreach (Note n in currentSong.Notes)
                                 {
                                     ArrowMover newAM = new ArrowMover(n, reactiontime, arrowTravelLayer);
-                                    Canvas.SetTop(newAM.Arrow, SystemParameters.PrimaryScreenHeight * (n.StartTime() / (float)reactiontime) + 100);
-                                    Console.WriteLine("Setting top to: {0}", SystemParameters.PrimaryScreenHeight * (n.StartTime() / (float)reactiontime) + 100);
+                                    Canvas.SetTop(newAM.Arrow, (SystemParameters.PrimaryScreenHeight * (n.StartTime() / (double)reactiontime)) + 100);
+                                    Console.WriteLine("Setting top to: {0}", (SystemParameters.PrimaryScreenHeight * (n.StartTime() / (double)reactiontime)) + 100);
                                     if (reactiontime > n.StartTime())
                                     {
                                         newAM.MovingState = 1;
@@ -207,7 +208,7 @@ namespace KINECTmania.GUI
                         await Task.Factory.StartNew(() => { CountdownDisplayer1.Visibility = Visibility.Hidden; }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
                         ingameClock.Start();
 
-                        App.Gms.RaiseGameEvent += Gms_RaiseGameEvent;
+                        
 
                         App.Gms.Start();
 
@@ -238,7 +239,15 @@ namespace KINECTmania.GUI
                 {
                     dealtNotes++;
                     toRemove.Add(a);
-                    Application.Current.Dispatcher.Invoke(new Action(() => { a.destroyME(); }));
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        a.destroyME();
+                        pointsLabel.Content = (Int32.Parse(pointsLabel.Content.ToString()) + e.Points).ToString();
+                        Console.WriteLine("Added {0} points.", e.Points);
+                        lastAccuracyLabel.Content = e.Accuracy.ToString("G");
+                        lastAccuracyLabel.Visibility = Visibility.Visible;
+                        accuracyDisplayRemaining = 50;
+                    }));
                 }
             }
             foreach (ArrowMover a in toRemove)
@@ -246,23 +255,37 @@ namespace KINECTmania.GUI
                 arrowMovers.Remove(a);
             }
             toRemove = new List<ArrowMover>();
+
         }
 
         void mainLoop()
         {
             
             double commonValue = SystemParameters.PrimaryScreenHeight / (double)reactiontime;
-            PlayGameTAP.SongStart = DateTime.Now;
             long lastElapsed = 0;
             try
             {
                 while (true)
                 {
-                    long elapsed = (long) (DateTime.Now - PlayGameTAP.SongStart).TotalMilliseconds;
-
-                    if (elapsed > lastElapsed + 29)
+                    long elapsed = GameStateManager.CurrentTime;
+                    //Console.WriteLine("Let's Lag!");
+                    if (lastElapsed < elapsed)
                     {
-                        lastElapsed = lastElapsed + 30;
+                        lastElapsed = elapsed;
+                        if (accuracyDisplayRemaining >= 1)
+                        {
+                            if (elapsed % 30 == 0)
+                            {
+                                accuracyDisplayRemaining--;
+                                if (accuracyDisplayRemaining == 1)
+                                {
+                                    Application.Current.Dispatcher.Invoke(new Action((() =>
+                                    {
+                                        lastAccuracyLabel.Visibility = Visibility.Hidden;
+                                    })));
+                                }
+                            }
+                        }
 
                         ArrowMover[] l = new ArrowMover[arrowMovers.Count];
                         arrowMovers.CopyTo(l);
@@ -284,7 +307,8 @@ namespace KINECTmania.GUI
                                     try
                                     {
                                         Canvas.SetTop(currentArrowMover.Arrow,
-                                            (currentArrowMover.note.StartTime() * commonValue + 100) - elapsed);
+                                            (currentArrowMover.note.StartTime() * commonValue + 100) -
+                                            (elapsed * commonValue));
                                     }
                                     catch
                                     {
@@ -296,17 +320,15 @@ namespace KINECTmania.GUI
                             }
                         }
 
-                        if (dealtNotes < currentSong.Notes.Count)
+                        if (dealtNotes == currentSong.Notes.Count)
                         {
-                            //Console.WriteLine("dealtNotes: {0}, count: {1}", dealtNotes, currentSong.Notes.Count);
-                            //ingameClock.Start();
-                        }
-                        else
-                        {
+
                             Console.WriteLine("dealtNotes: {0}, count: {1}", dealtNotes, currentSong.Notes.Count);
                             Console.WriteLine("Game Over!");
                             gameoverClock.Start();
+                            break;
                         }
+
                         if (!arrowMovers.Any())
                         {
                             break;
@@ -325,7 +347,12 @@ namespace KINECTmania.GUI
         void gameoverClock_Tick(object Sender, EventArgs e)
         {
             gameoverClock.Stop();
-            kdi.Stop();
+            Application.Current.Dispatcher.Invoke(new Action((() =>
+            {
+                lastAccuracyLabel.Visibility = Visibility.Hidden;
+            })));
+            //kdi.Stop();
+            App.Gms.ToScores();
             OnRaiseMenuStateChanged(new MenuStateChanged(0));
         }
 
@@ -390,94 +417,6 @@ namespace KINECTmania.GUI
             set { callingInstance = value; }
         }
 
-        #region deprecated PlayGame() method
-        [Obsolete("Wird nicht mehr grbraucht, da ingameClock_Tick diese Aufgabe jetzt übernimmt")]
-        async public static void PlayGame() //Called by an event handler (countdownTimer_Tick)
-        {
-
-            double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
-            int lastNoteStarted = 0;
-            ArrowMover currentArrowMover;
-
-            foreach (Note n in currentSong.Notes)
-            {
-                currentArrowMover = new ArrowMover(currentSong.Notes.ElementAt(lastNoteStarted), reactiontime, arrowTravelLayer);
-                arrowmovers.Add(currentArrowMover);
-                if (reactiontime < currentSong.Notes[lastNoteStarted].StartTime())
-                {
-                    Canvas.SetTop(currentArrowMover.Arrow, currentArrowMover.Speed * (reactiontime / currentSong.Notes[lastNoteStarted].StartTime()));
-                    currentArrowMover.MovingState = 1;
-                }
-            }
-
-
-
-            while (IsLive(lastNoteStarted))
-            {
-                if ((currentSong.Notes.Count > lastNoteStarted) && (Now2ms() - startTime - reactiontime) >= currentSong.Notes.ElementAt(lastNoteStarted).StartTime()) //Wenn die Zeit ran ist, den Pfeil zu starten - Detaillierte Erklrung gibts in der SummaryDE.txt
-                { //Pfeile hinzufügen
-                    currentArrowMover = arrowmovers[lastNoteStarted];
-                    currentArrowMover.Arrow.Visibility = Visibility.Visible;
-                    currentArrowMover.MovingState = 1;
-                    Console.WriteLine("Info: next ArrowMover on it's way! @ " + DateTime.Now.ToString());
-                    await moveImageUpwards(currentArrowMover);
-                    arrowTravelLayer.InvalidateVisual();
-                    lastNoteStarted++;
-                }
-                else
-                {
-                    currentArrowMover = null;
-                }
-
-                for (int i = 0; i < arrowmovers.Count; i++)
-                {
-                    if (currentArrowMover?.MovingState == 2)
-                    {
-                        arrowTravelLayer.Children.Remove(currentArrowMover.Arrow);
-                        arrowmovers.RemoveAt(i);
-                        Console.WriteLine("    Info: Removed an arrow @ " + DateTime.Now.ToString());
-                    }
-                    if (currentArrowMover?.MovingState == 1)
-                    {
-                        await moveImageUpwards(arrowmovers[i]);
-                    }
-                }
-
-                arrowTravelLayer.InvalidateVisual();
-            }
-
-
-
-
-            Console.WriteLine("Info: Game over!");
-            //callingInstance.OnRaiseMenuStateChanged(new MenuStateChanged(0));
-
-
-        } //end of PlayGame() method
-
-        #endregion
-
-        [Obsolete("Aufgabe wird ab jetzt von der ingameClock_Timer() übernommen")]
-        async private static Task moveImageUpwards(ArrowMover am)
-        {
-
-            await Task.Factory.StartNew(() =>
-            {
-                if (Canvas.GetTop(am.Arrow) > -200 && am.MovingState == 1)
-                {
-                    am.Worker = Task.CurrentId;
-                    Canvas.SetTop(am.Arrow, Canvas.GetTop(am.Arrow) - am.Speed);
-                    arrowTravelLayer.InvalidateVisual();
-                    Thread.Sleep(1);
-                }
-                else { am.MovingState = 2; Console.WriteLine("An arrow reached the top!"); }
-            }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
-
-
-
-
-        }
-
         public static double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
         {
             DateTime now = DateTime.Now;
@@ -505,9 +444,6 @@ namespace KINECTmania.GUI
             return true;
         }
     }
-
-
-
 
 
     public class ArrowMover
