@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -93,11 +93,25 @@ namespace KINECTmania.GUI
         {
             if (ReactionTimeChanger.Value % 1000 != 0) //Damit ich immer das Format "_,_ s" habe
             {
-                ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + " s";
+                try
+                {
+                    ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + " s";
+                }
+                catch 
+                {
+                    Console.WriteLine("wat");
+                }
             }
             else
             {
-                ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + ",0 s";
+                try { 
+
+                    ReactionTimeMeasurer.Content = ReactionTimeChanger.Value / 1000 + ",0 s";
+                }
+                catch
+                {
+                    Console.WriteLine("wat");
+                }
             }
         }
 

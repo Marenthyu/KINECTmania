@@ -1,4 +1,4 @@
-﻿<Page x:Class="KINECTmania.GUI.GameOptionsMenu"
+<Page x:Class="KINECTmania.GUI.GameOptionsMenu"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,21 +9,27 @@
       Title="GameOptionsMenu">
 
     <Grid Width="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" Height="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}" MinWidth="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenWidthKey}}" MinHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}">
-        <Label Content="Game Options" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="60" Margin="797,10,0,0"/>
-        <Button x:Name="BackToMainMenu" Content="" HorizontalAlignment="Left" Height="125" Margin="10,921,0,0" VerticalAlignment="Top" Width="125" Click="BackToMainMenu_Click">
+        <Label Content="Game Options" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="60" Margin="0,10,0,0"/>
+        <Button x:Name="BackToMainMenu" Content="" HorizontalAlignment="Left" Height="125" Margin="10,0,0,0" VerticalAlignment="Bottom" Width="125" Click="BackToMainMenu_Click" HorizontalContentAlignment="Left">
             <Button.Background>
                 <ImageBrush ImageSource="res/f_left.gif"/>
             </Button.Background>
         </Button>
-        <Button x:Name="StartGameBtn" Content="Start Game!" HorizontalAlignment="Left" Margin="1626,976,0,0" VerticalAlignment="Top" Width="300" FontSize="40" Height="70" Click="StartGameBtn_Click" IsEnabled="False" MouseDown="StartGameBtn_MouseDown"/>
-        <Label x:Name="LoadSongInfo" Content="Load Song:" HorizontalAlignment="Left" Margin="306,234,0,0" VerticalAlignment="Top" FontSize="40" Width="207" Height="63"/>
-        <TextBox x:Name="FileLocationMeasurer" HorizontalAlignment="Left" Height="63" Margin="528,234,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="800" FontSize="40" IsEnabled="False" SelectionOpacity="0"/>
-        <Button x:Name="OpenSongBtn" Content="Open..." HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" Margin="1333,234,0,0" Height="63" FontSize="40" Click="OpenSong"/>
+        <Button x:Name="StartGameBtn" Content="Start Game!" HorizontalAlignment="Right" Margin="0,0,50,50" VerticalAlignment="Bottom" Width="300" FontSize="40" Height="70" Click="StartGameBtn_Click" IsEnabled="False" HorizontalContentAlignment="Center"/>
+        <Grid Margin="0,0,0,100" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label x:Name="LoadSongInfo" Content="Load Song:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="40" Width="207" Height="63"/>
+            <TextBox x:Name="FileLocationMeasurer" HorizontalAlignment="Left" Height="63" Margin="222,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="800" FontSize="40" IsEnabled="False" SelectionOpacity="0"/>
+            <Button x:Name="OpenSongBtn" Content="Open..." HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" Margin="1027,0,0,0" Height="63" FontSize="40" Click="OpenSong"/>
+        </Grid>
         <Separator HorizontalAlignment="Left" Height="19" Margin="10,342,0,0" VerticalAlignment="Top" Width="1916"/>
-        <Label x:Name="ReactionTimeMeasurer" Content="müll"  HorizontalAlignment="Left" Margin="1333,399,0,0" VerticalAlignment="Top" FontSize="40"/>
-        <Slider x:Name="ReactionTimeChanger" HorizontalAlignment="Left" Height="36" Margin="528,426,0,0" VerticalAlignment="Top" Width="800" IsEnabled="False" Value="1200" Maximum="2000" Minimum="400" SmallChange="100" TickFrequency="100" IsSnapToTickEnabled="True" ValueChanged="ReactionTimeChanger_ValueChanged" FontSize="40" TickPlacement="BottomRight" LargeChange="100"/>
-        <Label x:Name="ReactionTimeInfo" Content="Reaction Time:" HorizontalAlignment="Left" Margin="246,399,0,0" VerticalAlignment="Top" FontSize="40"/>
-        
+        <Grid Margin="0,100,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Slider x:Name="ReactionTimeChanger" HorizontalAlignment="Left" Height="36" Margin="282,27,0,0" VerticalAlignment="Top" Width="800" Value="1200" Maximum="2000" Minimum="400" SmallChange="100" TickFrequency="100" IsSnapToTickEnabled="True" ValueChanged="ReactionTimeChanger_ValueChanged" FontSize="40" TickPlacement="BottomRight" LargeChange="100"/>
+            <Label x:Name="ReactionTimeInfo" Content="Reaction Time:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="40"/>
+            <Label x:Name="ReactionTimeMeasurer" Content="müll"  HorizontalAlignment="Left" Margin="1119,10,0,0" VerticalAlignment="Top" FontSize="40"/>
+
+
+        </Grid>
+
 
     </Grid>
 </Page>
