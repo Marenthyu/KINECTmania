@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,13 +27,13 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für GamePage.xaml
     /// </summary>
-    public partial class GamePage : Page, Menu
+    public partial class GamePage : Page, Menu 
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         private System.Windows.Threading.DispatcherTimer countdownTimer, gameoverClock;
         private Thread ingameClock;
         private int secondsBeforeGameStarts;
-        static GamePage staticGamePage;
+        public static GamePage staticGamePage;
         List<ArrowMover> arrowMovers;
         Song currentSong;
         int reactiontime, lastNoteStarted, dealtNotes;
@@ -123,6 +123,7 @@ namespace KINECTmania.GUI
             {
                 countdownTimer.Start();
                 kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
+                kdi.RaiseBitmapGenerated += HandleBitmapGenerated;
                 PlayGameTAP.StartupDate = DateTime.Today;
                 secondsBeforeGameStarts = 5;
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
@@ -137,6 +138,12 @@ namespace KINECTmania.GUI
 
 
             }
+        }
+
+        private void HandleBitmapGenerated(object sender, BitmapGenerated e)
+        {
+            KinectStreamDisplay.Source = e.Bitmap;
+            
         }
 
         void HandleSongLoaded(object sender, SongLoaded s)
@@ -176,11 +183,13 @@ namespace KINECTmania.GUI
                                     arrowMovers.Add(newAM);
                                 }
                                 arrowTravelLayer.InvalidateVisual();
-                                colorBitmap = new BitmapImage();
-                                colorBitmap.BeginInit();
-                                colorBitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                colorBitmap.StreamSource = kdi.GetFrameStream();
-                                colorBitmap.EndInit();
+                                /* colorBitmap = new BitmapImage();
+                                 colorBitmap.BeginInit();
+                                 colorBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                 colorBitmap.StreamSource = kdi.GetFrameStream();
+                                 colorBitmap.EndInit();*/
+
+
                                 KinectStreamDisplay.Source = colorBitmap;
                             }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
                         break;

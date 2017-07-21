@@ -49,7 +49,7 @@ namespace KINECTmania.kinectProcessing
             id = ID;
             pub.RaiseKinectEvent += HandleKinectArrowHitEvent;
         }
-        void HandleKinectArrowHitEvent(object sender, KinectArrowHitEventArgs e)
+        public void HandleKinectArrowHitEvent(object sender, KinectArrowHitEventArgs e)
         {
             throw new NotImplementedException();
 

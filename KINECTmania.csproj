@@ -108,6 +108,7 @@
   <ItemGroup>
     <Compile Include="GameLogic\GameStateManager.cs" />
     <Compile Include="GameLogic\Tester.cs" />
+    <Compile Include="kinectProcessing\FrameEvent.cs" />
     <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
