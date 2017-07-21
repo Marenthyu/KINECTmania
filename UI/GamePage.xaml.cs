@@ -36,8 +36,7 @@ namespace KINECTmania.GUI
         Song currentSong;
         int reactiontime, lastNoteStarted, lastNoteReachedTop;
         double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
-        private BitmapImage colorBitmap = new BitmapImage();
-        private int colorBitmapStride = 0;
+        private BitmapImage colorBitmap;
         public ImageSource sauce { get { return colorBitmap; } }
         KinectDataInput kdi;
         public GamePage()
@@ -124,7 +123,7 @@ namespace KINECTmania.GUI
                 //colorBitmap = new WriteableBitmap((int)SystemParameters.MaximizedPrimaryScreenWidth, (int)SystemParameters.MaximizedPrimaryScreenHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                 //colorBitmapStride = (int)colorBitmap.Width * ((colorBitmap.Format.BitsPerPixel + 7) / 8);
                 colorBitmap = new BitmapImage();
-                colorBitmap.StreamSource = kdi.GetFrameStream();
+                
                 //await Task.Factory.StartNew(() => drawStream(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
 
 
@@ -167,6 +166,12 @@ namespace KINECTmania.GUI
                                     arrowMovers.Add(newAM);
                                 }
                                 arrowTravelLayer.InvalidateVisual();
+                                colorBitmap = new BitmapImage();
+                                colorBitmap.BeginInit();
+                                colorBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                colorBitmap.StreamSource = kdi.GetFrameStream();
+                                colorBitmap.EndInit();
+                                KinectStreamDisplay.Source = colorBitmap;
                             }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
                         break;
                     }
