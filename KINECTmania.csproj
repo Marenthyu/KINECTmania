@@ -62,6 +62,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
+    <Reference Include="WriteableBitmapEx.Wpf, Version=1.5.0.0, Culture=neutral, PublicKeyToken=50375ca6144f1c69, processorArchitecture=MSIL">
+      <HintPath>packages\WriteableBitmapEx.1.5.1.0\lib\net40\WriteableBitmapEx.Wpf.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include=".git\config" />
@@ -109,6 +112,7 @@
     <Compile Include="GameLogic\GameStateManager.cs" />
     <Compile Include="GameLogic\Tester.cs" />
     <Compile Include="kinectProcessing\FrameEvent.cs" />
+    <Compile Include="kinectProcessing\KinectDataInput.cs" />
     <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
@@ -132,7 +136,6 @@
     <Compile Include="GameLogic\FileParser.cs" />
     <Compile Include="GameLogic\Song.cs" />
     <Compile Include="kinectProcessing\kinectArrowHitEventHandler.cs" />
-    <Compile Include="kinectProcessing\kinectDataInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="UI\App.xaml">

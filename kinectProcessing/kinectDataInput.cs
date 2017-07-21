@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Forms;
 using KINECTmania.GUI;
 using System.Threading;
+using System.Windows.Shapes;
 
 namespace KINECTmania.kinectProcessing
 {
@@ -83,7 +84,7 @@ namespace KINECTmania.kinectProcessing
 
         private void InitialiseKinect()
         {
-            if (canvas != null)
+            if (canvas == null)
             {
                 canvas = GamePage.getKinectStreamVisualizer();
             }
@@ -344,13 +345,56 @@ namespace KINECTmania.kinectProcessing
             return distance;
         }
 
+        public static Joint ScaleTo(Joint joint, double width, double height)
+        {
+            joint.Position = new CameraSpacePoint
+            {
+                X = Scale(width, 1.0f, joint.Position.X),
+                Y = Scale(height, 1.0f, -joint.Position.Y),
+                Z = joint.Position.Z
+            };
+            return joint;
+        }
+
+
+        private static float Scale(double maxPixel, double maxSkeleton, float position)
+        {
+            float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
+            if (value > maxPixel)
+            {
+                return (float)maxPixel;
+            }
+            if (value < 0)
+            {
+                return 0;
+            }
+            return value;
+        }
+
+        public static WriteableBitmap DrawPoint(WriteableBitmap wbmp, Joint joint)
+        {
+            //Joint tracked?
+            //if (joint.TrackingState == TrackingState.NotTracked) { return wbmp; }
+
+            //Map real-world coordinates to screen pixels
+            joint = ScaleTo(joint, wbmp.Width, wbmp.Height);
+
+            //create WPF ellipse
+            Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
+
+            //set Ellipse's position to where joint lies
+            wbmp.DrawEllipse((int)joint.Position.X,(int) joint.Position.Y, (int)joint.Position.X + 30, (int)joint.Position.Y + 30,Colors.Red);
+            return wbmp;
+        }
+
+
         private void Imageprocessing(ColorFrame cf)        {
             Console.WriteLine("Image");
             int width = cf.FrameDescription.Width;
             int height = cf.FrameDescription.Height;
             PixelFormat format = PixelFormats.Bgr32;
 
-            byte[] pixels = new byte[width * height * ((PixelFormats.Bgr32.BitsPerPixel + 7) / 8)];
+            byte[] pixels = new byte[cf.FrameDescription.LengthInPixels * 4];
 
             if (cf.RawColorImageFormat == ColorImageFormat.Bgra)
             {
@@ -363,23 +407,38 @@ namespace KINECTmania.kinectProcessing
 
             int stride = width * format.BitsPerPixel / 8;
             BitmapSource bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
-            OnRaiseBitmapGenerated(new BitmapGenerated(new WriteableBitmap(bmpSource)));
+            WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
+
+            //Bearbeiten von Bitmap
+            wbmp = DrawPoint(wbmp,this.LeftHand);
+            wbmp = DrawPoint(wbmp, this.RightHand);
+            wbmp = DrawPoint(wbmp, this.arrowDown);
+            wbmp = DrawPoint(wbmp, this.arrowUp);
+            wbmp = DrawPoint(wbmp, this.arrowLeft);
+            wbmp = DrawPoint(wbmp, this.arrowRight);
+
+
+
+
+            OnRaiseBitmapGenerated(new BitmapGenerated(wbmp));
 
             /* 
              Still have to mark up the Arrows and the hands in the Image with a Canvas
              */
-            if (canvas != null)
-            {
-                canvas.DrawPoint(this.LeftHand);
-                canvas.DrawPoint(this.RightHand);
-                canvas.DrawPoint(this.arrowUp);
-                canvas.DrawPoint(this.arrowDown);
-                canvas.DrawPoint(this.arrowLeft);
-                canvas.DrawPoint(this.arrowRight);
-            }
+
+            //if (canvas != null)
+            //{
+            //    canvas.DrawPoint(this.LeftHand);
+            //    canvas.DrawPoint(this.RightHand);
+            //    canvas.DrawPoint(this.arrowUp);
+            //    canvas.DrawPoint(this.arrowDown);
+            //    canvas.DrawPoint(this.arrowLeft);
+            //    canvas.DrawPoint(this.arrowRight);
+            //    Console.WriteLine("Punkte gemalt!!");
+            //}
 
             //writePixelsToStream(wbmp);
-            Console.WriteLine("Bild gesendet");
+            //Console.WriteLine("Bild gesendet");
         }
         //private async void writePixelsToStream(byte[] pixels)
         //{

@@ -615,54 +615,54 @@ namespace KINECTmania.GUI
     #endregion
 
 
-    #region Class for DrawPoint(...)
-    public static class Draw2Canvas
-    {
-        public static Joint ScaleTo(this Joint joint, double width, double height)
-        {
-            joint.Position = new CameraSpacePoint
-            {
-                X = Scale(width, 1.0f, joint.Position.X),
-                Y = Scale(height, 1.0f, -joint.Position.Y),
-                Z = joint.Position.Z
-            };
-            return joint;
-        }
+    //#region Class for DrawPoint(...)
+    //public static class Draw2Canvas
+    //{
+    //    public static Joint ScaleTo(this Joint joint, double width, double height)
+    //    {
+    //        joint.Position = new CameraSpacePoint
+    //        {
+    //            X = Scale(width, 1.0f, joint.Position.X),
+    //            Y = Scale(height, 1.0f, -joint.Position.Y),
+    //            Z = joint.Position.Z
+    //        };
+    //        return joint;
+    //    }
 
-        private static float Scale(double maxPixel, double maxSkeleton, float position)
-        {
-            float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
-            if (value > maxPixel)
-            {
-                return (float)maxPixel;
-            }
-            if (value < 0)
-            {
-                return 0;
-            }
-            return value;
-        }
+    //    private static float Scale(double maxPixel, double maxSkeleton, float position)
+    //    {
+    //        float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
+    //        if (value > maxPixel)
+    //        {
+    //            return (float)maxPixel;
+    //        }
+    //        if (value < 0)
+    //        {
+    //            return 0;
+    //        }
+    //        return value;
+    //    }
 
-        public static void DrawPoint(this Canvas canvas, Joint joint)
-        {
-            //Joint tracked?
-            if (joint.TrackingState == TrackingState.NotTracked) { return; }
+    //    public static void DrawPoint(this Canvas canvas, Joint joint)
+    //    {
+    //        //Joint tracked?
+    //        if (joint.TrackingState == TrackingState.NotTracked) { return; }
 
-            //Map real-world coordinates to screen pixels
-            joint = joint.ScaleTo(canvas.ActualWidth, canvas.ActualHeight);
+    //        //Map real-world coordinates to screen pixels
+    //        joint = joint.ScaleTo(canvas.ActualWidth, canvas.ActualHeight);
 
-            //create WPF ellipse
-            Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
+    //        //create WPF ellipse
+    //        Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
 
-            //set Ellipse's position to where joint lies
-            Canvas.SetLeft(e, joint.Position.X - e.Width / 2);
-            Canvas.SetTop(e, joint.Position.Y - e.Height / 2);
+    //        //set Ellipse's position to where joint lies
+    //        Canvas.SetLeft(e, joint.Position.X - e.Width / 2);
+    //        Canvas.SetTop(e, joint.Position.Y - e.Height / 2);
 
-            //draw Ellipse e on Canvas canvas
-            canvas.Children.Add(e);
-        }
-    } //End of class Draw2Canvas
+    //        //draw Ellipse e on Canvas canvas
+    //        canvas.Children.Add(e);
+    //    }
+    //} //End of class Draw2Canvas
 
-    #endregion
+    //#endregion
 
 }
