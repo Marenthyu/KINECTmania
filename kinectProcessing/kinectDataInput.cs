@@ -23,7 +23,7 @@ namespace KINECTmania.kinectProcessing
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
         private Joint LeftHand, RightHand = new Joint();
-        private float buttonSize = 0.3F;
+        private static float buttonSize = 0.3F;
         private MultiSourceFrameReader multiSource = null;
         private System.Windows.Controls.Canvas canvas;
         public event EventHandler<BitmapGenerated> RaiseBitmapGenerated;
@@ -101,7 +101,7 @@ namespace KINECTmania.kinectProcessing
 
         private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            Console.WriteLine("Frame arrived");
+            //Console.WriteLine("Frame arrived");
             var frame = e.FrameReference.AcquireFrame();
             if (frame != null)
             {
@@ -371,7 +371,7 @@ namespace KINECTmania.kinectProcessing
             return value;
         }
 
-        public static WriteableBitmap DrawPoint(WriteableBitmap wbmp, Joint joint)
+        public static WriteableBitmap DrawPoint(WriteableBitmap wbmp, Joint joint, bool isArrow)
         {
             //Joint tracked?
             //if (joint.TrackingState == TrackingState.NotTracked) { return wbmp; }
@@ -383,7 +383,23 @@ namespace KINECTmania.kinectProcessing
             Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
 
             //set Ellipse's position to where joint lies
-            wbmp.DrawEllipse((int)joint.Position.X,(int) joint.Position.Y, (int)joint.Position.X + 30, (int)joint.Position.Y + 30,Colors.Red);
+            if (!isArrow)
+            {
+                int X = (int)joint.Position.X;
+                int Y = (int)joint.Position.Y;
+                int helpx = wbmp.PixelWidth / 2;
+                int helpy = wbmp.PixelHeight / 2;
+                int dx = 0;
+                int dy = 0;
+                dx = X - helpx;
+                dy = Y - helpy;
+                dx = dx * -1;
+                wbmp.FillEllipseCentered(X+dx/10, Y+dy/2, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightSkyBlue);
+            }
+            else
+            {
+                wbmp.FillEllipseCentered((int)joint.Position.X, (int)joint.Position.Y, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightGreen);
+            }
             return wbmp;
         }
 
@@ -410,12 +426,13 @@ namespace KINECTmania.kinectProcessing
             WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
 
             //Bearbeiten von Bitmap
-            wbmp = DrawPoint(wbmp,this.LeftHand);
-            wbmp = DrawPoint(wbmp, this.RightHand);
-            wbmp = DrawPoint(wbmp, this.arrowDown);
-            wbmp = DrawPoint(wbmp, this.arrowUp);
-            wbmp = DrawPoint(wbmp, this.arrowLeft);
-            wbmp = DrawPoint(wbmp, this.arrowRight);
+
+            wbmp = DrawPoint(wbmp,this.LeftHand,false);
+            wbmp = DrawPoint(wbmp, this.RightHand,false);
+            wbmp = DrawPoint(wbmp, this.arrowDown,true);
+            wbmp = DrawPoint(wbmp, this.arrowUp,true);
+            wbmp = DrawPoint(wbmp, this.arrowLeft,true);
+            wbmp = DrawPoint(wbmp, this.arrowRight,true);
 
 
 
