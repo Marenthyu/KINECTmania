@@ -394,11 +394,11 @@ namespace KINECTmania.kinectProcessing
                 dx = X - helpx;
                 dy = Y - helpy;
                 dx = dx * -1;
-                wbmp.FillEllipseCentered(X+dx/10, Y+dy/2, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightSkyBlue);
+                wbmp.FillEllipseCentered(X+dx/10, Y+dy/2, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightGreen);
             }
             else
             {
-                wbmp.FillEllipseCentered((int)joint.Position.X, (int)joint.Position.Y, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightGreen);
+                wbmp.FillEllipseCentered((int)joint.Position.X, (int)joint.Position.Y, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightSkyBlue);
             }
             return wbmp;
         }
