@@ -27,19 +27,18 @@ namespace KINECTmania.GUI
     /// <summary>
     /// Interaktionslogik für GamePage.xaml
     /// </summary>
-    public partial class GamePage : Page, Menu
+    public partial class GamePage : Page, Menu 
     {
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         private System.Windows.Threading.DispatcherTimer countdownTimer, gameoverClock;
         private Thread ingameClock;
         private int secondsBeforeGameStarts;
-        static GamePage staticGamePage;
+        public static GamePage staticGamePage;
         List<ArrowMover> arrowMovers;
         Song currentSong;
         int reactiontime, lastNoteStarted, dealtNotes;
         double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
-        private BitmapImage colorBitmap = new BitmapImage();
-        private int colorBitmapStride = 0;
+        private BitmapImage colorBitmap;
         public ImageSource sauce { get { return colorBitmap; } }
         KinectDataInput kdi;
         public static Image DownTarget, RightTarget, UpTarget, LeftTarget;
@@ -126,7 +125,9 @@ namespace KINECTmania.GUI
             if (e.MenuState == 3)
             {
                 countdownTimer.Start();
-                //kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
+                kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
+                kdi.RaiseBitmapGenerated += HandleBitmapGenerated;
+
                 PlayGameTAP.StartupDate = DateTime.Today;
                 secondsBeforeGameStarts = 5;
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
@@ -135,12 +136,20 @@ namespace KINECTmania.GUI
                 //new Thread(kdi.Start).Start();
                 //colorBitmap = new WriteableBitmap((int)SystemParameters.MaximizedPrimaryScreenWidth, (int)SystemParameters.MaximizedPrimaryScreenHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                 //colorBitmapStride = (int)colorBitmap.Width * ((colorBitmap.Format.BitsPerPixel + 7) / 8);
-                //colorBitmap = new BitmapImage();
-                //colorBitmap.StreamSource = kdi.GetFrameStream();
+
+                colorBitmap = new BitmapImage();
+                
+
                 //await Task.Factory.StartNew(() => drawStream(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
 
 
             }
+        }
+
+        private void HandleBitmapGenerated(object sender, BitmapGenerated e)
+        {
+            KinectStreamDisplay.Source = e.Bitmap;
+            
         }
 
         void HandleSongLoaded(object sender, SongLoaded s)
@@ -180,6 +189,14 @@ namespace KINECTmania.GUI
                                     arrowMovers.Add(newAM);
                                 }
                                 arrowTravelLayer.InvalidateVisual();
+                                /* colorBitmap = new BitmapImage();
+                                 colorBitmap.BeginInit();
+                                 colorBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                 colorBitmap.StreamSource = kdi.GetFrameStream();
+                                 colorBitmap.EndInit();*/
+
+
+                                KinectStreamDisplay.Source = colorBitmap;
                             }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
                         break;
                     }
@@ -540,54 +557,54 @@ namespace KINECTmania.GUI
     #endregion
 
 
-    #region Class for DrawPoint(...)
-    public static class Draw2Canvas
-    {
-        public static Joint ScaleTo(this Joint joint, double width, double height)
-        {
-            joint.Position = new CameraSpacePoint
-            {
-                X = Scale(width, 1.0f, joint.Position.X),
-                Y = Scale(height, 1.0f, -joint.Position.Y),
-                Z = joint.Position.Z
-            };
-            return joint;
-        }
+    //#region Class for DrawPoint(...)
+    //public static class Draw2Canvas
+    //{
+    //    public static Joint ScaleTo(this Joint joint, double width, double height)
+    //    {
+    //        joint.Position = new CameraSpacePoint
+    //        {
+    //            X = Scale(width, 1.0f, joint.Position.X),
+    //            Y = Scale(height, 1.0f, -joint.Position.Y),
+    //            Z = joint.Position.Z
+    //        };
+    //        return joint;
+    //    }
 
-        private static float Scale(double maxPixel, double maxSkeleton, float position)
-        {
-            float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
-            if (value > maxPixel)
-            {
-                return (float)maxPixel;
-            }
-            if (value < 0)
-            {
-                return 0;
-            }
-            return value;
-        }
+    //    private static float Scale(double maxPixel, double maxSkeleton, float position)
+    //    {
+    //        float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
+    //        if (value > maxPixel)
+    //        {
+    //            return (float)maxPixel;
+    //        }
+    //        if (value < 0)
+    //        {
+    //            return 0;
+    //        }
+    //        return value;
+    //    }
 
-        public static void DrawPoint(this Canvas canvas, Joint joint)
-        {
-            //Joint tracked?
-            if (joint.TrackingState == TrackingState.NotTracked) { return; }
+    //    public static void DrawPoint(this Canvas canvas, Joint joint)
+    //    {
+    //        //Joint tracked?
+    //        if (joint.TrackingState == TrackingState.NotTracked) { return; }
 
-            //Map real-world coordinates to screen pixels
-            joint = joint.ScaleTo(canvas.ActualWidth, canvas.ActualHeight);
+    //        //Map real-world coordinates to screen pixels
+    //        joint = joint.ScaleTo(canvas.ActualWidth, canvas.ActualHeight);
 
-            //create WPF ellipse
-            Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
+    //        //create WPF ellipse
+    //        Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
 
-            //set Ellipse's position to where joint lies
-            Canvas.SetLeft(e, joint.Position.X - e.Width / 2);
-            Canvas.SetTop(e, joint.Position.Y - e.Height / 2);
+    //        //set Ellipse's position to where joint lies
+    //        Canvas.SetLeft(e, joint.Position.X - e.Width / 2);
+    //        Canvas.SetTop(e, joint.Position.Y - e.Height / 2);
 
-            //draw Ellipse e on Canvas canvas
-            canvas.Children.Add(e);
-        }
-    } //End of class Draw2Canvas
+    //        //draw Ellipse e on Canvas canvas
+    //        canvas.Children.Add(e);
+    //    }
+    //} //End of class Draw2Canvas
 
-    #endregion
+    //#endregion
 
 }
