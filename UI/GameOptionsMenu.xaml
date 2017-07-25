@@ -32,7 +32,7 @@
         <Grid Margin="0,100,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Slider x:Name="ReactionTimeChanger" HorizontalAlignment="Left" Height="36" Margin="282,27,0,0" VerticalAlignment="Top" Width="800" Value="1200" Maximum="2000" Minimum="400" SmallChange="100" TickFrequency="100" IsSnapToTickEnabled="True" ValueChanged="ReactionTimeChanger_ValueChanged" FontSize="40" TickPlacement="BottomRight" LargeChange="100"/>
             <Label x:Name="ReactionTimeInfo" Content="Reaction Time:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="40"/>
-            <Label x:Name="ReactionTimeMeasurer" Content="1,0s"  HorizontalAlignment="Left" Margin="1119,10,0,0" VerticalAlignment="Top" FontSize="40"/>
+            <Label x:Name="ReactionTimeMeasurer" Content="1,2s"  HorizontalAlignment="Left" Margin="1119,10,0,0" VerticalAlignment="Top" FontSize="40"/>
 
 
         </Grid>

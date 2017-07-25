@@ -8,6 +8,9 @@ using System.Text;
 
 namespace KINECTmania.GameLogic
 {
+    /// <summary>
+    /// A Playable Song including all the information from a .kmsf file
+    /// </summary>
     public class Song
     {
         public List<Note> Notes { get; private set; }
@@ -31,6 +34,10 @@ namespace KINECTmania.GameLogic
             this.Notes = notes;
         }
 
+        /// <summary>
+        /// Loads a Song from a .kmsf File. Convenience Method.
+        /// </summary>
+        /// <param name="kmsfFile">Path to the kmsf File to be parsed.</param>
         private void LoadSong(String kmsfFile)
         {
             FileParser fp = new FileParser(kmsfFile);
@@ -127,6 +134,9 @@ namespace KINECTmania.GameLogic
 
     }
 
+    /// <summary>
+    /// Gets thrown when a Song tries to be loaded from an Unsupported Version of a kmsf File. Currently, only Version 1 is supported.
+    /// </summary>
     class InvalidSongFileVersionException : Exception
     {
         

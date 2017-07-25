@@ -5,6 +5,9 @@ using System.Text;
 
 namespace KINECTmania.GameLogic
 {
+    /// <summary>
+    /// A note (or "Arrow") that should be hit during a song.
+    /// </summary>
     public class Note
     {
         private long startTime;
@@ -16,6 +19,11 @@ namespace KINECTmania.GameLogic
             this.position = position;
         }
 
+        /// <summary>
+        /// Parses a note from a Line of a .kmsf file. Convenience method.
+        /// </summary>
+        /// <param name="line">The line read from the .kmsf file. Format: [startTime][space][position]</param>
+        /// <returns>the parsed Note</returns>
         public static Note NoteFromLine(String line)
         {
             long startTime;

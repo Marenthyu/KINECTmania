@@ -9,6 +9,9 @@ using Timer = System.Timers.Timer;
 
 namespace KINECTmania
 {
+    /// <summary>
+    /// File Parser to read text files. Returns all lines in a List.
+    /// </summary>
     class FileParser
     {
 

@@ -14,6 +14,9 @@ using Timer = System.Timers.Timer;
 
 namespace KINECTmania.GameLogic
 {
+    /// <summary>
+    /// Testing Class.
+    /// </summary>
     class Tester
     {
 

@@ -79,12 +79,15 @@ namespace KINECTmania.GUI
             ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             if (ofd.ShowDialog() == true) //is only true if user selects "Open" in the dialog
             { 
-                Console.WriteLine("Info: Song " + ofd.FileName + " successfully loaded!");
+                
                 FileLocationMeasurer.Text = ofd.FileName;
                 this.StartGameBtn.IsEnabled = true;
                 ReactionTimeChanger.IsEnabled = true;
                 
                 Song loaded = App.Gms.LoadSong(ofd.FileName);
+                currentSongArtistLabel.Content = "Current Artist: " + loaded.SongArtist;
+                currentSongNameLabel.Content = "Current Song: " + loaded.SongTitle;
+                currentSongLengthLabel.Content = "Current Length: " + loaded.Length + "s";
                 OnRaiseSongLoaded(new SongLoaded(loaded));
             }
         }

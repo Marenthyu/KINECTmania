@@ -12,6 +12,9 @@ using NAudio.Wave;
 
 namespace KINECTmania.GameLogic
 {
+    /// <summary>
+    /// Manages the Game's state and provides Events for Notes being missed/hit
+    /// </summary>
     class GameStateManager
     {
         private WaveOutEvent _waveOut;
@@ -33,6 +36,11 @@ namespace KINECTmania.GameLogic
             
         }
 
+        /// <summary>
+        /// Event handler for Kinect input
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="kinectArrowHitEventArgs">The arguments for which arrow has been hit</param>
         private void AhpOnRaiseKinectEvent(object sender, KinectArrowHitEventArgs kinectArrowHitEventArgs)
         {
             Console.WriteLine("Checking event catched for note at " + kinectArrowHitEventArgs.Message + "; time: " + CurrentTime);
@@ -83,6 +91,9 @@ namespace KINECTmania.GameLogic
             }
         }
 
+        /// <summary>
+        /// Event that triggers when a note has been missed or hit.
+        /// </summary>
         public event GameEventHandler RaiseGameEvent;
 
         protected virtual void OnRaiseGameEvent(GameEventArgs e)
@@ -90,11 +101,19 @@ namespace KINECTmania.GameLogic
             RaiseGameEvent?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Raises a dummy event of the first note being hit. For testing purposes
+        /// </summary>
         public void RaiseDummyEvent()
         {
             AhpOnRaiseKinectEvent(this, new KinectArrowHitEventArgs(1));
         }
 
+        /// <summary>
+        /// Load a Song into the GSM's memory and return it
+        /// </summary>
+        /// <param name="path">Path to the .kmsf file</param>
+        /// <returns>The Song parsed from the File</returns>
         public Song LoadSong(String path)
         {
             CurrentSong = new Song(path);
@@ -118,6 +137,9 @@ namespace KINECTmania.GameLogic
             return CurrentSong;
         }
 
+        /// <summary>
+        /// Handles the end of the Song being played back
+        /// </summary>
         private void WaveOutOnPlaybackStopped(object sender, StoppedEventArgs stoppedEventArgs)
         {
 
@@ -126,6 +148,9 @@ namespace KINECTmania.GameLogic
             State = GameState.SCORES;
         }
 
+        /// <summary>
+        /// Starts the currently loaded Song
+        /// </summary>
         public void Start()
         {
             if (State == GameState.IN_GAME || State == GameState.PAUSED)
@@ -145,6 +170,9 @@ namespace KINECTmania.GameLogic
 
         }
 
+        /// <summary>
+        /// Main loop that updates the currently elapsed time and fires the event for any missed notes
+        /// </summary>
         private void playSong()
         {
             Console.WriteLine("In playSong");
@@ -201,6 +229,9 @@ namespace KINECTmania.GameLogic
             
         }
 
+        /// <summary>
+        /// Pauses the current song
+        /// </summary>
         public void Pause()
         {
             switch (State)
@@ -229,11 +260,17 @@ namespace KINECTmania.GameLogic
             
         }
 
+        /// <summary>
+        /// Resumes a paused song
+        /// </summary>
         public void Resume()
         {
             State = GameState.IN_GAME;
         }
 
+        /// <summary>
+        /// Stops the playback of a song
+        /// </summary>
         public void ToScores()
         {
             _waveOut.Stop();
@@ -241,7 +278,9 @@ namespace KINECTmania.GameLogic
         }
     }
 
-
+    /// <summary>
+    /// Available Game States
+    /// </summary>
     public enum GameState
     {
         MAIN_MENU, PAUSED, IN_GAME, LOADING_SONG, READY, OPTIONS, SCORES
@@ -263,6 +302,9 @@ namespace KINECTmania.GameLogic
 
     public delegate void GameEventHandler(object sender, GameEventArgs e);
 
+    /// <summary>
+    /// The available Accuracys that Arrows/Notes can be hit with
+    /// </summary>
     public enum Accuracy
     {
         MARVELOUS, PERFECT, GREAT, GOOD, BAD, BOO, MISS
