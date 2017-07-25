@@ -16,7 +16,7 @@ using KINECTmania.kinectProcessing;
 namespace KINECTmania.GUI
 {
     /// <summary>
-    /// Interaktionslogik für Window1.xaml
+    /// Interaktionslogik für Window1.xaml - das Fenster, in dem das Spiel stattfindet
     /// </summary>
     public partial class GameWindow : Window
     {
@@ -29,7 +29,7 @@ namespace KINECTmania.GUI
         {
             InitializeComponent();
 
-            menus = new Menu[4];
+            menus = new Menu[4]; //Required for enabling switching between "menus" or Pages
             GameOptionsMenu gom = new GameOptionsMenu();
             GamePage gp = new GamePage();
             menus[0] = new MainMenu();
@@ -47,6 +47,8 @@ namespace KINECTmania.GUI
                     publisher.RaiseMenuStateChanged += HandleMenuStateChanged;
                 }
             }
+
+            //See GamePage.xaml.cs for more details
             gp.setPublisherMenuStateChanged(gom);
             gp.setSongLoadedPublisher(gom);
             gp.setGameOptionsSetter(gom);

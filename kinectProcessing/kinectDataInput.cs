@@ -14,8 +14,12 @@ using System.Windows.Shapes;
 
 namespace KINECTmania.kinectProcessing
 {
+    /// <summary>
+    /// Klasse, die die Verwaltung und Datenverarbeitung für die Kinect sicherstellt
+    /// </summary>
     public class KinectDataInput : BitmapGenerator
     {
+        #region Globale Variablen
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
         private bool keepRunning = false;
@@ -28,6 +32,10 @@ namespace KINECTmania.kinectProcessing
         private System.Windows.Controls.Canvas canvas;
         public event EventHandler<BitmapGenerated> RaiseBitmapGenerated;
         public static ArrowHitPublisher arrowPub = new ArrowHitPublisher();
+        #endregion
+        /// <summary>
+        /// Defaultkonstruktor
+        /// </summary>
         public KinectDataInput()
         {
             for (int i = 0; i < stillHittingLeft.Length; i++)
@@ -54,51 +62,6 @@ namespace KINECTmania.kinectProcessing
         {
             RaiseBitmapGenerated?.Invoke(this, b);
         }
-
-        #endregion
-        public void Start()
-        {
-            if (kSensor == null || multiSource == null) { InitialiseKinect(); }
-            //if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
-            kSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
-
-            if (keepRunning != true)
-            {
-                keepRunning = true;
-                multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
-            }
-
-
-        }
-        public void Stop()
-        {
-            if (keepRunning != false)
-            {
-                keepRunning = false;
-                multiSource.Dispose();
-                kSensor.Close();
-            }
-
-        }
-        public bool IsRunning() { return this.keepRunning; }
-
-        private void InitialiseKinect()
-        {
-            if (canvas == null)
-            {
-                canvas = GamePage.getKinectStreamVisualizer();
-            }
-            kSensor = KinectSensor.GetDefault();
-            if (kSensor != null)
-            {
-                //starts the Kinect
-                kSensor.Open();
-                Console.WriteLine($"Available: {kSensor.IsAvailable}");
-                Console.WriteLine($"UniqueKinectId: {kSensor.UniqueKinectId}");
-            }
-            multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body | FrameSourceTypes.Color);
-        }
-
         private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             //Console.WriteLine("Frame arrived");
@@ -120,6 +83,64 @@ namespace KINECTmania.kinectProcessing
             }
         }
 
+        #endregion
+        /// <summary>
+        /// Startfunktion der Kinect, die auch die Initialisierung überprüft
+        /// </summary>
+        #region Kinectmanaging
+        public void Start()
+        { 
+            if (kSensor == null || multiSource == null) { InitialiseKinect(); }
+            //if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
+            kSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
+
+            if (keepRunning != true)
+            {
+                keepRunning = true;
+                multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
+            }
+
+
+        }
+        /// <summary>
+        /// Funktion zum Beenden der Kinect und der Bildübertragung
+        /// </summary>
+        public void Stop()
+        {
+            if (keepRunning != false)
+            {
+                keepRunning = false;
+                multiSource.Dispose();
+                kSensor.Close();
+            }
+
+        }
+        public bool IsRunning() { return this.keepRunning; }
+        /// <summary>
+        /// Funktion zum erstmaligen starten der Kinect
+        /// </summary>
+        private void InitialiseKinect()
+        {
+            if (canvas == null)
+            {
+                canvas = GamePage.getKinectStreamVisualizer();
+            }
+            kSensor = KinectSensor.GetDefault();
+            if (kSensor != null)
+            {
+                //starts the Kinect
+                kSensor.Open();
+                Console.WriteLine($"Available: {kSensor.IsAvailable}");
+                Console.WriteLine($"UniqueKinectId: {kSensor.UniqueKinectId}");
+            }
+            multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body | FrameSourceTypes.Color);
+        }
+        #endregion
+        #region Datenverarbeitung der Kinect
+        /// <summary>
+        /// Managed die Personen im Bild und stellt Sie der Verarbeitung zur Verfügung
+        /// </summary>
+        /// <param name="bodyFrame"></param>
         private void ArrowDetection(BodyFrame bodyFrame)
         {
             bool dataReceived = false;
@@ -257,6 +278,12 @@ namespace KINECTmania.kinectProcessing
             }
             return success;
         }
+        /// <summary>
+        /// Prüft ob einer der vorgegebenen Bereiche mit den Händen getroffen wurde
+        /// </summary>
+        /// <param name="handJoint"></param>
+        /// <param name="stillHitting"></param>
+        /// <returns></returns>
         private short ButtonHit(Joint handJoint, bool[] stillHitting)
         {
             short buttonNumber = -1;
@@ -322,6 +349,13 @@ namespace KINECTmania.kinectProcessing
                 return buttonNumber;
             }
         }
+
+        /// <summary>
+        /// Berechnet die Distanz zwischen 2 Punkten
+        /// </summary>
+        /// <param name="hand"></param>
+        /// <param name="button"></param>
+        /// <returns></returns>
         private double CalDistance(Joint hand, Joint button)
         {
             double xHelp, yHelp = 0.0;
@@ -373,8 +407,6 @@ namespace KINECTmania.kinectProcessing
 
         public static WriteableBitmap DrawPoint(WriteableBitmap wbmp, Joint joint, bool isArrow)
         {
-            //Joint tracked?
-            //if (joint.TrackingState == TrackingState.NotTracked) { return wbmp; }
 
             //Map real-world coordinates to screen pixels
             joint = ScaleTo(joint, wbmp.Width, wbmp.Height);
@@ -403,8 +435,12 @@ namespace KINECTmania.kinectProcessing
             return wbmp;
         }
 
-
-        private void Imageprocessing(ColorFrame cf)        {
+        /// <summary>
+        /// Generiert Bilder, die dann über ein Event an den UI-Thread übergeben werden
+        /// </summary>
+        /// <param name="cf"></param>
+        private void Imageprocessing(ColorFrame cf)
+        {
             Console.WriteLine("Image");
             int width = cf.FrameDescription.Width;
             int height = cf.FrameDescription.Height;
@@ -422,87 +458,20 @@ namespace KINECTmania.kinectProcessing
             }
 
             int stride = width * format.BitsPerPixel / 8;
-            BitmapSource bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
+            BitmapSource bmpSource = BitmapSource.Create(width, height, 96.0, 96.0, format, null, pixels, stride);
             WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
 
             //Bearbeiten von Bitmap
 
-            wbmp = DrawPoint(wbmp,this.LeftHand,false);
-            wbmp = DrawPoint(wbmp, this.RightHand,false);
-            wbmp = DrawPoint(wbmp, this.arrowDown,true);
-            wbmp = DrawPoint(wbmp, this.arrowUp,true);
-            wbmp = DrawPoint(wbmp, this.arrowLeft,true);
-            wbmp = DrawPoint(wbmp, this.arrowRight,true);
-
-
-
+            wbmp = DrawPoint(wbmp, this.LeftHand, false);
+            wbmp = DrawPoint(wbmp, this.RightHand, false);
+            wbmp = DrawPoint(wbmp, this.arrowDown, true);
+            wbmp = DrawPoint(wbmp, this.arrowUp, true);
+            wbmp = DrawPoint(wbmp, this.arrowLeft, true);
+            wbmp = DrawPoint(wbmp, this.arrowRight, true);
 
             OnRaiseBitmapGenerated(new BitmapGenerated(wbmp));
-
-            /* 
-             Still have to mark up the Arrows and the hands in the Image with a Canvas
-             */
-
-            //if (canvas != null)
-            //{
-            //    canvas.DrawPoint(this.LeftHand);
-            //    canvas.DrawPoint(this.RightHand);
-            //    canvas.DrawPoint(this.arrowUp);
-            //    canvas.DrawPoint(this.arrowDown);
-            //    canvas.DrawPoint(this.arrowLeft);
-            //    canvas.DrawPoint(this.arrowRight);
-            //    Console.WriteLine("Punkte gemalt!!");
-            //}
-
-            //writePixelsToStream(wbmp);
-            //Console.WriteLine("Bild gesendet");
         }
-        //private async void writePixelsToStream(byte[] pixels)
-        //{
-        //    try
-        //    {
-        //        await FrameStream.WriteAsync(pixels, 1024, pixels.Length);
-        //    }
-        //    catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
-        //}
-
-        //{
-        //    currentCF = cf;
-        //    Console.WriteLine("Imageprocessing");
-        //    int width = cf.FrameDescription.Width;
-        //    int height = cf.FrameDescription.Height;
-        //    PixelFormat format = PixelFormats.Bgr32;
-
-        //    byte[] pixels = new byte[cf.FrameDescription.LengthInPixels * 4];
-
-        //    if (cf.RawColorImageFormat == ColorImageFormat.Bgra)
-        //    {
-        //        cf.CopyRawFrameDataToArray(pixels);
-        //    }
-        //    else
-        //    {
-        //        cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
-        //    }
-        //    WritePixelsToStream(pixels);
-        //    if (canvas != null)
-        //    {
-        //        /*canvas.DrawPoint(this.LeftHand);
-        //        canvas.DrawPoint(this.RightHand);
-        //        canvas.DrawPoint(this.arrowUp);
-        //        canvas.DrawPoint(this.arrowDown);
-        //        canvas.DrawPoint(this.arrowLeft);
-        //        canvas.DrawPoint(this.arrowRight);*/
-        //    }
-        //}
-        //private async void WritePixelsToStream(byte[] pixels)
-        //{
-        //    try
-        //    {
-        //        Console.WriteLine("Habe in Stream geschrieben");
-        //        await FrameStream.WriteAsync(pixels, 0, pixels.Length);
-
-        //    }
-        //    catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
-        //}
+#endregion
     }
 }

@@ -40,6 +40,7 @@ namespace KINECTmania.GUI
 
         #endregion
 
+        #region <UI interaction>
         private void ExitGame_Click(object sender, RoutedEventArgs e)
         {
             OnRaiseMenuStateChanged(new MenuStateChanged(-1)); //Code for closing the window
@@ -49,5 +50,7 @@ namespace KINECTmania.GUI
         {
             OnRaiseMenuStateChanged(new MenuStateChanged(2));
         }
+
+        #endregion
     }
 }

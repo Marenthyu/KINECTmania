@@ -32,20 +32,20 @@ namespace KINECTmania.GUI
         public event EventHandler<MenuStateChanged> RaiseMenuStateChanged;
         private System.Windows.Threading.DispatcherTimer countdownTimer, gameoverClock;
         private Thread ingameClock;
-        private int secondsBeforeGameStarts;
-        public static GamePage staticGamePage;
-        List<ArrowMover> arrowMovers;
+        private int secondsBeforeGameStarts; //für visuellen Countdown benötigt, um richtige Zeit anzuzeigen
+        List<ArrowMover> arrowMovers; //Die Pfeile, die über den Bildschirm huschen. Enthält alle gerade sichtbaren Pfeile.
         Song currentSong;
         int reactiontime, lastNoteStarted, dealtNotes;
         double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
         private WriteableBitmap colorBitmap;
-        public ImageSource sauce { get { return colorBitmap; } }
-        KinectDataInput kdi;
-        public static Image DownTarget, RightTarget, UpTarget, LeftTarget;
-        static List<ArrowMover> toRemove = new List<ArrowMover>();
+        public ImageSource sauce { get { return colorBitmap; } } //Binding mit Image KinectStreamDisplayer in der XAML-Datei
+        KinectDataInput kdi; //SW-Darstellung der Kinect-HW
+        public static Image DownTarget, RightTarget, UpTarget, LeftTarget; //Binding mit den Zeilen (aka umrandete Pfeile)
+        static List<ArrowMover> toRemove = new List<ArrowMover>(); //Helfer-Liste
         public static Grid TargetGrid;
         private static int accuracyDisplayRemaining = 0;
         private readonly double yOffset;
+        private static DateTime startupDate;
 
         public GamePage()
         {
@@ -56,7 +56,6 @@ namespace KINECTmania.GUI
             gameoverClock = new DispatcherTimer();
             gameoverClock.Tick += new EventHandler(gameoverClock_Tick);
             gameoverClock.Interval = new TimeSpan(0, 0, 3);
-            staticGamePage = this;
             DownTarget = downTarget;
             RightTarget = rightTarget;
             UpTarget = upTarget;
@@ -66,20 +65,9 @@ namespace KINECTmania.GUI
             yOffset = GamePage.UpTarget.TransformToVisual(GamePage.TargetGrid).Transform(new Point(0, 0)).Y;
         }
 
-        public static Canvas getKinectStreamVisualizer() //Für kinectDataInput.ImageProcessing(...)
-        {
-            return staticGamePage.KinectStreamVisualizer;
-
-        }
-
-        public static Canvas getArrowTravelLayer()
-        {
-            return staticGamePage.arrowTravelLayer;
-        }
-
         #region <Event handling>
 
-        //I have to set the publishers manually in the constructor of the GaemWindow :(
+        //I have to set the publishers manually in the constructor of the GameWindow :(
 
         public void setPublisherMenuStateChanged(Menu g)
         {
@@ -125,10 +113,10 @@ namespace KINECTmania.GUI
             if (e.MenuState == 3)
             {
                 countdownTimer.Start();
-                kdi = new KinectDataInput(); //TODO https://stackoverflow.com/a/13360509
+                kdi = new KinectDataInput(); 
                 kdi.RaiseBitmapGenerated += HandleBitmapGenerated;
 
-                PlayGameTAP.StartupDate = DateTime.Today;
+                startupDate = DateTime.Today;
                 secondsBeforeGameStarts = 5;
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
                 dealtNotes = lastNoteStarted = 0;
@@ -141,25 +129,24 @@ namespace KINECTmania.GUI
 
         private void HandleBitmapGenerated(object sender, BitmapGenerated e)
         {
-            KinectStreamDisplay.Source = e.Bitmap;
-            
-            
+            KinectStreamDisplay.Source = e.Bitmap;   
 
         }
 
         void HandleSongLoaded(object sender, SongLoaded s)
         {
-            PlayGameTAP.CurrentSong = s.LoadedSong;
             currentSong = s.LoadedSong;
         }
 
         void HandleGameOptionsSet(object sender, GameOptionsSet gs)
         {
-            PlayGameTAP.Reactiontime = gs.MS;
             reactiontime = gs.MS;
         }
 
-        async void countdownTimer_Tick(object sender, EventArgs e)//Implements the Countdown... nothing else, really!
+        /// <summary>
+        /// Implements the Countdown... nothing else, really!
+        /// </summary>
+        async void countdownTimer_Tick(object sender, EventArgs e)
         {
             countdownTimer.Stop();
             switch (--secondsBeforeGameStarts)
@@ -184,13 +171,6 @@ namespace KINECTmania.GUI
                                     arrowMovers.Add(newAM);
                                 }
                                 arrowTravelLayer.InvalidateVisual();
-                                /* colorBitmap = new BitmapImage();
-                                 colorBitmap.BeginInit();
-                                 colorBitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                 colorBitmap.StreamSource = kdi.GetFrameStream();
-                                 colorBitmap.EndInit();*/
-
-
                                 KinectStreamDisplay.Source = colorBitmap;
                             }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
                         break;
@@ -221,12 +201,7 @@ namespace KINECTmania.GUI
                     {
                         await Task.Factory.StartNew(() => { CountdownDisplayer1.Visibility = Visibility.Hidden; }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
                         ingameClock.Start();
-
-                        
-
-                        App.Gms.Start();
-
-                        
+                        App.Gms.Start();                       
                         break;
                     }
             }
@@ -237,15 +212,11 @@ namespace KINECTmania.GUI
             }
         }
 
-        private void drawStream()
-        {
-            
-            
-        }
-
+        /// <summary>
+        /// Triggered, whenever the gms fires an event (i.e. whenever a note was either hit or missed)
+        /// </summary>
         private void Gms_RaiseGameEvent(object sender, GameEventArgs e)
         {
-            //TODO Implemeteren, wenn GamestateMEanager Event erzeugt
             Note eventNote = e.Note;
             foreach (ArrowMover a in arrowMovers)
             {
@@ -272,6 +243,9 @@ namespace KINECTmania.GUI
 
         }
 
+        /// <summary>
+        /// *magic* Makes the game work. Creates, refreshes and deletes the arrows.
+        /// </summary>
         void mainLoop()
         {
             
@@ -308,8 +282,7 @@ namespace KINECTmania.GUI
                         {
 
                             if (currentArrowMover.MovingState == 0 &&
-                                PlayGameTAP.Now2ms() - startTime >=
-                                (currentSong.Notes[lastNoteStarted].Position() - reactiontime))
+                                Now2ms() - startTime >= (currentSong.Notes[lastNoteStarted].Position() - reactiontime))
                             {
                                 Console.WriteLine("Started note");
                                 currentArrowMover.MovingState = 1;
@@ -359,6 +332,9 @@ namespace KINECTmania.GUI
             Console.WriteLine("Out of loop");
         }
 
+        /// <summary>
+        /// Preparation before switching back to MainMenu (code: 0)
+        /// </summary>
         void gameoverClock_Tick(object Sender, EventArgs e)
         {
             gameoverClock.Stop();
@@ -378,60 +354,6 @@ namespace KINECTmania.GUI
 
         #endregion
 
-    }
-    #region <Convenience methods + class for playGame()>
-
-    public static class PlayGameTAP
-    {
-        private static Song currentSong;
-        public static Song CurrentSong
-        {
-            get { return currentSong; }
-            set { currentSong = value; }
-        }
-        private static List<ArrowMover> arrowmovers = new List<ArrowMover>();
-        public static List<ArrowMover> Arrowmovers
-        {
-            get { return arrowmovers; }
-            set { arrowmovers = value; }
-        }
-        private static int reactiontime;
-        public static int Reactiontime
-        {
-            get { return reactiontime; }
-            set { reactiontime = value; }
-        }
-        private static DateTime startupDate;
-        public static DateTime StartupDate
-        {
-            get { return startupDate; }
-            set { startupDate = value; }
-        }
-        private static DateTime songStart;
-        public static DateTime SongStart
-        {
-            get { return songStart; }
-            set { songStart = value; }
-        }
-        private static int eventsRecieved = 0;
-        public static int EventsRecieved
-        {
-            get { return eventsRecieved; }
-            set { eventsRecieved = value; }
-        }
-        private static Canvas arrowTravelLayer;
-        public static Canvas ArrowtravelLayer
-        {
-            get { return arrowTravelLayer; }
-            set { arrowTravelLayer = value; }
-        }
-        private static GamePage callingInstance;
-        public static GamePage CallingInstance
-        {
-            get { return callingInstance; }
-            set { callingInstance = value; }
-        }
-
         public static double Now2ms() //Converts DateTime.Now to how many ms have passed since midnight of the day the GamePage was loaded
         {
             DateTime now = DateTime.Now;
@@ -443,24 +365,14 @@ namespace KINECTmania.GUI
             {
                 return 86400000 + (now.Hour * 3600000) + (now.Minute * 60000) + (now.Second * 1000) + now.Millisecond;
             }
-            /*
-            TimeSpan duration = DateTime.Now - startupDate;
-            return duration.Milliseconds;
-            */
         }
 
-        public static bool IsLive(int lastNoteTriggered)
-        {
-
-            if (currentSong.Notes.Count <= eventsRecieved || currentSong.Notes.Count <= lastNoteTriggered)
-            {
-                return false;
-            }
-            return true;
-        }
     }
+    #region <ArrowMover>
 
-
+    /// <summary>
+    /// Basically, this class serves adds some info to our arrow image, like its moving state (at bottom, moving, deleted) or the speed of the arrow
+    /// </summary>
     public class ArrowMover
     {
         public Note note;
@@ -500,6 +412,13 @@ namespace KINECTmania.GUI
                 //note = null;
             }
         }
+
+        /// <summary>
+        /// Selects the correct arrow image and sets the correct values to it (e.g. position, speed, ...)
+        /// </summary>
+        /// <param name="direction">Which direction the arrow faces (1: up, 2: down, 3: left, 4: right)</param>
+        /// <param name="parent">The Canvas on which the arrows shall be drawn</param>
+        /// <returns></returns>
         private static Image arrowGenerator(short direction, Canvas parent)
         {
             Image retVal = new Image();
@@ -544,7 +463,7 @@ namespace KINECTmania.GUI
                 default:
                     throw new ArgumentException("Error: Wrong code for arrow specified (Method name: KINECTmania.GUI.GamePage.arrowGenerator(short direction)");
             }
-            //end of arrowGenerator(short code)  
+            //end of arrowGenerator(code: short)  
         }
     }
 
@@ -552,54 +471,6 @@ namespace KINECTmania.GUI
     #endregion
 
 
-    //#region Class for DrawPoint(...)
-    //public static class Draw2Canvas
-    //{
-    //    public static Joint ScaleTo(this Joint joint, double width, double height)
-    //    {
-    //        joint.Position = new CameraSpacePoint
-    //        {
-    //            X = Scale(width, 1.0f, joint.Position.X),
-    //            Y = Scale(height, 1.0f, -joint.Position.Y),
-    //            Z = joint.Position.Z
-    //        };
-    //        return joint;
-    //    }
-
-    //    private static float Scale(double maxPixel, double maxSkeleton, float position)
-    //    {
-    //        float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
-    //        if (value > maxPixel)
-    //        {
-    //            return (float)maxPixel;
-    //        }
-    //        if (value < 0)
-    //        {
-    //            return 0;
-    //        }
-    //        return value;
-    //    }
-
-    //    public static void DrawPoint(this Canvas canvas, Joint joint)
-    //    {
-    //        //Joint tracked?
-    //        if (joint.TrackingState == TrackingState.NotTracked) { return; }
-
-    //        //Map real-world coordinates to screen pixels
-    //        joint = joint.ScaleTo(canvas.ActualWidth, canvas.ActualHeight);
-
-    //        //create WPF ellipse
-    //        Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
-
-    //        //set Ellipse's position to where joint lies
-    //        Canvas.SetLeft(e, joint.Position.X - e.Width / 2);
-    //        Canvas.SetTop(e, joint.Position.Y - e.Height / 2);
-
-    //        //draw Ellipse e on Canvas canvas
-    //        canvas.Children.Add(e);
-    //    }
-    //} //End of class Draw2Canvas
-
-    //#endregion
+   
 
 }

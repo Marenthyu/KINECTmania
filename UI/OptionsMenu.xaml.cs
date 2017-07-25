@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 namespace KINECTmania.GUI
 {
     /// <summary>
-    /// Interaktionslogik für Page2.xaml
+    /// Interaktionslogik für OptionsMenu.xaml
     /// </summary>
     public partial class OptionsMenu : Page, Menu
     {
