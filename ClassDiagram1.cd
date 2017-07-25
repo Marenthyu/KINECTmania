@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access">
+  <Class Name="KINECTmania.GameLogic.GameStateManager">
+    <Position X="4.5" Y="3.25" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Protected" Collapsed="true" />
+      <Compartment Name="Private" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>IAAhAAAAECAAAAAAAAAABSAAAAgAEAAQoAAIhAgAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Ahp" />
+      <Property Name="State" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KINECTmania.GameLogic.InvalidGameStateTransitionException" Collapsed="true">
+    <Position X="6.75" Y="4.25" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KINECTmania.GameLogic.SongFileNotFoundException" Collapsed="true">
+    <Position X="6.75" Y="5.25" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KINECTmania.GameLogic.NoSongLoadedException" Collapsed="true">
+    <Position X="8.25" Y="5.25" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KINECTmania.GameLogic.Note" Collapsed="true">
+    <Position X="7" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAAkAAAgIAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\Note.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KINECTmania.GameLogic.Song">
+    <Position X="4.75" Y="6.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Private" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAgACAAAAAAAAAEAAAAAAJAAEAAAECAgAAAAAAAAAI=</HashCode>
+      <FileName>GameLogic\Song.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Notes" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="KINECTmania.GameLogic.InvalidSongFileVersionException" Collapsed="true">
+    <Position X="8.25" Y="4.25" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\Song.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KINECTmania.kinectProcessing.ArrowHitPublisher" Collapsed="true">
+    <Position X="2.25" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAAAAABAAAAAAAAABAA=</HashCode>
+      <FileName>kinectProcessing\kinectArrowHitEventHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KINECTmania.kinectProcessing.KinectDataInput" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="6.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Private" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>VBAQAAgAASIACQAYCBIIQACCAAIAGABIIAAAAAAjABA=</HashCode>
+      <FileName>kinectProcessing\KinectDataInput.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="arrowPub" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KINECTmania.GUI.App">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\App.xaml.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Gms" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="KINECTmania.GUI.GameOptionsMenu" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQACAAAAAAAAEIBAIQCAgAAQAAACAAgAAEAAAAA=</HashCode>
+      <FileName>UI\GameOptionsMenu.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KINECTmania.GUI.GamePage" BaseTypeListCollapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Private" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>QAQQAQhACiAAQAEAIIAgQAAACKQBQABgABhoIAyACxA=</HashCode>
+      <FileName>UI\GamePage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KINECTmania.GUI.GameWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\GameWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KINECTmania.GUI.MainMenu" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgIACCAAAAAAAAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>UI\MainMenu.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KINECTmania.GUI.OptionsMenu" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAAAAAACAAgAAAAAAAA=</HashCode>
+      <FileName>UI\OptionsMenu.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Enum Name="KINECTmania.GameLogic.GameState" Collapsed="true">
+    <Position X="6.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAIAABAAAAAAAAAAAgBQAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="KINECTmania.GameLogic.Accuracy" Collapsed="true">
+    <Position X="0.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAkACACAAIAAAAAAAAAAAEAAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Delegate Name="KINECTmania.GameLogic.GameEventHandler" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameLogic\GameStateManager.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
