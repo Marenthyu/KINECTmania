@@ -7,6 +7,9 @@ using KINECTmania.GameLogic;
 
 namespace KINECTmania.GUI
 {
+    /// <summary>
+    /// Wird gefeuert, wenn ein Menüwechsel stattfinden soll
+    /// </summary>
     public class MenuStateChanged : EventArgs
     {
         private int menuState;
@@ -38,9 +41,13 @@ namespace KINECTmania.GUI
 
     }
     
+    /// <summary>
+    /// Wird gefeuert, wenn die Spieloptionen (eng. game options) gesetzt werden
+    /// </summary>
     public class GameOptionsSet : EventArgs
     {
-        private int ms;
+        
+        private int ms; //wieviele ms zwischen dem Auftauchen am unteren Bildschirmrand und den (perfekten) Eintreffen auf der Hitbox vergehen sollen
 
         public int MS
         {
@@ -66,6 +73,9 @@ namespace KINECTmania.GUI
         void OnRaiseGameOptionsSet(GameOptionsSet g);
     }
 
+    /// <summary>
+    /// Übergibt den geladenen Song an alle Subscriber
+    /// </summary>
     public class SongLoaded : EventArgs
     {
         private Song loadedSong;
@@ -88,23 +98,14 @@ namespace KINECTmania.GUI
         void OnRaiseSongLoaded(SongLoaded s);
     }
 
-    public class KinectStreamRequested : EventArgs
-    {
+    
 
-    }
-
-    public interface KinectStreamRequestedPublisher
-    {
-        event EventHandler<KinectStreamRequested> RaiseKinectStreamRequested;
-
-        void OnRaiseKinectStreamRequested(KinectStreamRequested k);
-    }
-
+    [Obsolete("Wird nicht mehr benötigt")]
     public class CountdownFinished : EventArgs
     {
 
     }
-
+    [Obsolete("Wird nicht mehr benötigt")]
     public interface CountdownFinishedPublisher
     {
         event EventHandler<CountdownFinished> RaiseCountdownFinished;

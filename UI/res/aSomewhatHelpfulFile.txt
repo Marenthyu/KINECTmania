@@ -1,7 +1,7 @@
 ﻿Erstellt am: 26. Mai 2017
 Zuletzt überarbeitet: 26. Mai 2017 - 17.52 Uhr
 
-Ich packe hier alle UI-Ressourcen rein. Das sind hauptsächlich Bilder, die auf die UI gepackt werden (s. Concept Art auf unserem "Exposé") und ggf noch anderer Stuss.
+Ich packe hier alle UI-Ressourcen rein. Das sind hauptsächlich Bilder, die auf die UI geschmissen werden (s. Concept Art auf unserem "Exposé") und ggf noch anderer Stuss.
 
 
 c_*.gif: Letzenendes der Bereich, der vom Spieler getroffen werden soll. Diese Pfeile verbleiben statisch auf dem Bildschirm. Sind alle transparent.
@@ -9,3 +9,7 @@ f_*.gif: Das sind die Pfeile, die eingeflogen kommen und somit auch die Pfeile, 
 
 kmLogo.ico: Das (originale) Logo mit einem Seitenverhältnis von 4,06:1 (B/H)
 kmLogoSq.ico: Die Buchstaben des Logos wurden übereinander angeordnet, sodass ein Seitenverhältnis von 1:1,05 (B/H) entsteht - fast ein Quadrat!
+
+1.gif, 2.gif, ... : Visualisierung des Countdowns
+
+defaultKinectBG.bmp: Wenn keine Kinect angeschlossen ist, sieht man stattdessen dieses "Bild" in-game. Ein Easter Egg, wenn man so will.
