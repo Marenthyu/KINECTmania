@@ -20,7 +20,7 @@ namespace KINECTmania.GameLogic
         private Song CurrentSong { get; set; }
         private ArrowHitPublisher Ahp { get; set; }
         private List<Note> remainingNotes { get; set; }
-        private static long CurrentTime { get; set; }
+        public static long CurrentTime { get; set; }
     
 
         public GameStateManager()
@@ -122,6 +122,7 @@ namespace KINECTmania.GameLogic
         {
 
             Console.WriteLine("Playback stopped. {0}", stoppedEventArgs.ToString());
+            _waveOut.Dispose();
             State = GameState.SCORES;
         }
 
@@ -147,13 +148,18 @@ namespace KINECTmania.GameLogic
         private void playSong()
         {
             Console.WriteLine("In playSong");
+            
             _waveOut.Play();
+            long songStart = (long)_waveOut.GetPositionTimeSpan().TotalMilliseconds;
+            
+            Console.WriteLine("Start time: " + songStart);
             bool wasPaused = false;
 
             Console.WriteLine("Remaining notes: " + remainingNotes.Count);
             while (remainingNotes.Count > 0)
             {
-                long elapsed = (long) _waveOut.GetPositionTimeSpan().TotalMilliseconds;
+                long elapsed = (long) _waveOut.GetPositionTimeSpan().TotalMilliseconds - songStart;
+                
                 CurrentTime = elapsed;
                 if (State.Equals(GameState.PAUSED))
                 {
@@ -226,6 +232,12 @@ namespace KINECTmania.GameLogic
         public void Resume()
         {
             State = GameState.IN_GAME;
+        }
+
+        public void ToScores()
+        {
+            _waveOut.Stop();
+            
         }
     }
 

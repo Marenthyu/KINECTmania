@@ -9,23 +9,24 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using KINECTmania.GUI;
+using System.Threading;
+using System.Windows.Shapes;
 
 namespace KINECTmania.kinectProcessing
 {
-    public class KinectDataInput
+    public class KinectDataInput : BitmapGenerator
     {
         private KinectSensor kSensor = null;
         private Body[] bodies = null;
-        private MemoryStream FrameStream;
         private bool keepRunning = false;
         private Joint arrowUp, arrowDown, arrowLeft, arrowRight = new Joint();
         private bool[] stillHittingLeft = new bool[4];
         private bool[] stillHittingRight = new bool[4];
         private Joint LeftHand, RightHand = new Joint();
-        private float buttonSize = 0.3F;
+        private static float buttonSize = 0.3F;
         private MultiSourceFrameReader multiSource = null;
         private System.Windows.Controls.Canvas canvas;
-
+        public event EventHandler<BitmapGenerated> RaiseBitmapGenerated;
         public static ArrowHitPublisher arrowPub = new ArrowHitPublisher();
         public KinectDataInput()
         {
@@ -46,23 +47,28 @@ namespace KINECTmania.kinectProcessing
             arrowRight.Position.X = 0.5F;
             arrowRight.Position.Y = 0.0F;
         }
-        public MemoryStream GetFrameStream() { return this.FrameStream; }
 
+        #region Event handling
+
+        public void OnRaiseBitmapGenerated(BitmapGenerated b)
+        {
+            RaiseBitmapGenerated?.Invoke(this, b);
+        }
+
+        #endregion
         public void Start()
         {
             if (kSensor == null || multiSource == null) { InitialiseKinect(); }
             //if (canvas == null) { canvas = GUI.GamePage.KinectStreamVisualizer; }
+            kSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
+
             if (keepRunning != true)
             {
                 keepRunning = true;
-                while (keepRunning)
-                {
-                    if (multiSource != null)
-                    {
-                        multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
-                    }
-                }
+                multiSource.MultiSourceFrameArrived += MultiSource_MultiSourceFrameArrived;
             }
+
+
         }
         public void Stop()
         {
@@ -71,7 +77,6 @@ namespace KINECTmania.kinectProcessing
                 keepRunning = false;
                 multiSource.Dispose();
                 kSensor.Close();
-                FrameStream.Close();
             }
 
         }
@@ -79,6 +84,10 @@ namespace KINECTmania.kinectProcessing
 
         private void InitialiseKinect()
         {
+            if (canvas == null)
+            {
+                canvas = GamePage.getKinectStreamVisualizer();
+            }
             kSensor = KinectSensor.GetDefault();
             if (kSensor != null)
             {
@@ -88,24 +97,25 @@ namespace KINECTmania.kinectProcessing
                 Console.WriteLine($"UniqueKinectId: {kSensor.UniqueKinectId}");
             }
             multiSource = kSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Body | FrameSourceTypes.Color);
-            try
-            {
-                FrameStream = new MemoryStream();
-            }
-            catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
         }
 
         private void MultiSource_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            if (e.FrameReference.AcquireFrame() != null)
+            //Console.WriteLine("Frame arrived");
+            var frame = e.FrameReference.AcquireFrame();
+            if (frame != null)
             {
-                if (e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame() != null)
+                var bodyFrame = frame.BodyFrameReference.AcquireFrame();
+                if (bodyFrame != null)
                 {
-                    ArrowDetection(e.FrameReference.AcquireFrame().BodyFrameReference.AcquireFrame());
+                    ArrowDetection(bodyFrame);
+                    bodyFrame.Dispose();
                 }
-                if (e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame() != null)
+                var colorFrame = frame.ColorFrameReference.AcquireFrame();
+                if (colorFrame != null)
                 {
-                    Imageprocessing(e.FrameReference.AcquireFrame().ColorFrameReference.AcquireFrame());
+                    Imageprocessing(colorFrame);
+                    colorFrame.Dispose();
                 }
             }
         }
@@ -335,9 +345,67 @@ namespace KINECTmania.kinectProcessing
             return distance;
         }
 
-        private void Imageprocessing(ColorFrame cf)
+        public static Joint ScaleTo(Joint joint, double width, double height)
         {
-            Console.WriteLine("Imageprocessing");
+            joint.Position = new CameraSpacePoint
+            {
+                X = Scale(width, 1.0f, joint.Position.X),
+                Y = Scale(height, 1.0f, -joint.Position.Y),
+                Z = joint.Position.Z
+            };
+            return joint;
+        }
+
+
+        private static float Scale(double maxPixel, double maxSkeleton, float position)
+        {
+            float value = (float)((((maxPixel / maxSkeleton) / 2) * position) + (maxPixel / 2));
+            if (value > maxPixel)
+            {
+                return (float)maxPixel;
+            }
+            if (value < 0)
+            {
+                return 0;
+            }
+            return value;
+        }
+
+        public static WriteableBitmap DrawPoint(WriteableBitmap wbmp, Joint joint, bool isArrow)
+        {
+            //Joint tracked?
+            //if (joint.TrackingState == TrackingState.NotTracked) { return wbmp; }
+
+            //Map real-world coordinates to screen pixels
+            joint = ScaleTo(joint, wbmp.Width, wbmp.Height);
+
+            //create WPF ellipse
+            Ellipse e = new Ellipse { Width = 20, Height = 20, Fill = new SolidColorBrush(Colors.LightBlue) };
+
+            //set Ellipse's position to where joint lies
+            if (!isArrow)
+            {
+                int X = (int)joint.Position.X;
+                int Y = (int)joint.Position.Y;
+                int helpx = wbmp.PixelWidth / 2;
+                int helpy = wbmp.PixelHeight / 2;
+                int dx = 0;
+                int dy = 0;
+                dx = X - helpx;
+                dy = Y - helpy;
+                dx = dx * -1;
+                wbmp.FillEllipseCentered(X+dx/10, Y+dy/2, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightGreen);
+            }
+            else
+            {
+                wbmp.FillEllipseCentered((int)joint.Position.X, (int)joint.Position.Y, (int)(buttonSize * 200), (int)(buttonSize * 200), Colors.LightSkyBlue);
+            }
+            return wbmp;
+        }
+
+
+        private void Imageprocessing(ColorFrame cf)        {
+            Console.WriteLine("Image");
             int width = cf.FrameDescription.Width;
             int height = cf.FrameDescription.Height;
             PixelFormat format = PixelFormats.Bgr32;
@@ -352,24 +420,89 @@ namespace KINECTmania.kinectProcessing
             {
                 cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
             }
-            WritePixelsToStream(pixels);
-            if (canvas != null)
-            {
-                /*canvas.DrawPoint(this.LeftHand);
-                canvas.DrawPoint(this.RightHand);
-                canvas.DrawPoint(this.arrowUp);
-                canvas.DrawPoint(this.arrowDown);
-                canvas.DrawPoint(this.arrowLeft);
-                canvas.DrawPoint(this.arrowRight);*/
-            }
+
+            int stride = width * format.BitsPerPixel / 8;
+            BitmapSource bmpSource = BitmapSource.Create(width, height , 96.0, 96.0, format, null, pixels, stride);
+            WriteableBitmap wbmp = new WriteableBitmap(bmpSource);
+
+            //Bearbeiten von Bitmap
+
+            wbmp = DrawPoint(wbmp,this.LeftHand,false);
+            wbmp = DrawPoint(wbmp, this.RightHand,false);
+            wbmp = DrawPoint(wbmp, this.arrowDown,true);
+            wbmp = DrawPoint(wbmp, this.arrowUp,true);
+            wbmp = DrawPoint(wbmp, this.arrowLeft,true);
+            wbmp = DrawPoint(wbmp, this.arrowRight,true);
+
+
+
+
+            OnRaiseBitmapGenerated(new BitmapGenerated(wbmp));
+
+            /* 
+             Still have to mark up the Arrows and the hands in the Image with a Canvas
+             */
+
+            //if (canvas != null)
+            //{
+            //    canvas.DrawPoint(this.LeftHand);
+            //    canvas.DrawPoint(this.RightHand);
+            //    canvas.DrawPoint(this.arrowUp);
+            //    canvas.DrawPoint(this.arrowDown);
+            //    canvas.DrawPoint(this.arrowLeft);
+            //    canvas.DrawPoint(this.arrowRight);
+            //    Console.WriteLine("Punkte gemalt!!");
+            //}
+
+            //writePixelsToStream(wbmp);
+            //Console.WriteLine("Bild gesendet");
         }
-        private async void WritePixelsToStream(byte[] pixels)
-        {
-            try
-            {
-                await FrameStream.WriteAsync(pixels, 0, pixels.Length);
-            }
-            catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
-        }
+        //private async void writePixelsToStream(byte[] pixels)
+        //{
+        //    try
+        //    {
+        //        await FrameStream.WriteAsync(pixels, 1024, pixels.Length);
+        //    }
+        //    catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
+        //}
+
+        //{
+        //    currentCF = cf;
+        //    Console.WriteLine("Imageprocessing");
+        //    int width = cf.FrameDescription.Width;
+        //    int height = cf.FrameDescription.Height;
+        //    PixelFormat format = PixelFormats.Bgr32;
+
+        //    byte[] pixels = new byte[cf.FrameDescription.LengthInPixels * 4];
+
+        //    if (cf.RawColorImageFormat == ColorImageFormat.Bgra)
+        //    {
+        //        cf.CopyRawFrameDataToArray(pixels);
+        //    }
+        //    else
+        //    {
+        //        cf.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
+        //    }
+        //    WritePixelsToStream(pixels);
+        //    if (canvas != null)
+        //    {
+        //        /*canvas.DrawPoint(this.LeftHand);
+        //        canvas.DrawPoint(this.RightHand);
+        //        canvas.DrawPoint(this.arrowUp);
+        //        canvas.DrawPoint(this.arrowDown);
+        //        canvas.DrawPoint(this.arrowLeft);
+        //        canvas.DrawPoint(this.arrowRight);*/
+        //    }
+        //}
+        //private async void WritePixelsToStream(byte[] pixels)
+        //{
+        //    try
+        //    {
+        //        Console.WriteLine("Habe in Stream geschrieben");
+        //        await FrameStream.WriteAsync(pixels, 0, pixels.Length);
+
+        //    }
+        //    catch (Exception e) { Console.WriteLine(e.Message.ToString()); }
+        //}
     }
 }

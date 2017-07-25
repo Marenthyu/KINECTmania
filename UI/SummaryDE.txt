@@ -1,0 +1,28 @@
+In diesem Ordner geht es hauptsächlich um die GUI des KINECTMania-Spiels. Hier sind also die ganzen Pages definiert und so.
+
+Jedes Menü wird über eine eigene Page realisiert, welches nur entsprechend auf das Fenser geklatscht wird. Dies wird über das MenuStateChanged-Event realisiert. Leider muss so jede Page von Anfang an 
+in den Hintergrund geladen werden... Da der Kinect-Datenstrom aber nur bei Bedarf fließt, sollte dies kein großes Performance-Hindernis sein, zumal die Menüs einfach aufgebaut sind.
+
+Dateien:
+
+ - App.xaml/.xaml.cs: Hier erfolgt der Start des Programms - die entsprechende Main-Methode wird beim Kompilieren generiert. Programmspezifische Module o.Ä. sollten über die App.Startup-Methode
+		geladen werden.
+ - GameWindow.xaml/.xaml.cs: Das Window, was geöffnet wird. Enthält nichts weiter.
+ - MainMenu.xaml/.xaml.cs: Hier liegt das Hauptmenü, welches Zugriff auf all die weiteren Funktionen des Spiels liefert.
+ - OptionsMenu.xaml/.xaml.cs: Das Optionsmanü, in dem Lautstärke und so eingestellt werden können.
+ - GameOptionsMenu.xaml/.xaml.cs: In diesem Menü können die Spieleinstellungen festgelegt werden (z.B. BPM, Reaktionszeit, ...)
+ - GamePage.xaml/.xaml.cs: In dieser Seite läuft das eigentliche Spiel ab
+ - Extensions.cs: Gefunden auf http://pterneas.com/2014/03/13/kinect-for-windows-version-2-body-tracking/ (zuletzt abgerufen: 28. Juni 2017, 10:50 Uhr)
+
+ Erklärungen:
+ GamePage.playGame() - die ellenlange if-Bedingung:
+	
+	startTime: Die Zeit (in ms), die seit dem Spielstart und heute Nacht, 0.00 Uhr vergangen ist
+	Now2ms(): Die Zeit (in ms), die zwischen jetzt und heute Nacht, 0.00 Uhr vergangen ist
+		Diese Funktion überlebt es auch, wenn man vor 0.00 Uhr ein Spiel startet und nach 0.00 Uhr das Spiel immer noch läuft
+	(I) Now2ms() - startTime: Die Zeit, die das Spiel schon live ist
+		Wenn man hiervon die reactionTime abzieht, haben wir genau die zeit, ab die ein Pfeil losgeschossen werden soll
+	(II) currentSong.GetNotes().ElementAt(lastNoteTriggered).StartTime(): Die Startzeit der aktuellen (durh lastNoteTriggered bestimmten) Note
+	
+	Ist (I) >= (II), so muss genau jetzt der Pfeil losgeschickt werden, damit der Pfeil rechtzeitig die Hitbox erreicht
+
