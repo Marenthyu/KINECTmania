@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace KINECTmania.kinectProcessing
 {
+    /// <summary>
+    /// Event mit einem short als Message, um zu signalisieren, dass ein Pfeil getroffen wurde
+    /// </summary>
     public class KinectArrowHitEventArgs : EventArgs
     {
         public KinectArrowHitEventArgs(short s)
@@ -20,6 +23,9 @@ namespace KINECTmania.kinectProcessing
             set { message = value; }
         }
     }
+    /// <summary>
+    /// Publisher für KinectArrowHitEvent
+    /// </summary>
     public class ArrowHitPublisher
     {
         public event EventHandler<KinectArrowHitEventArgs> RaiseKinectEvent;
@@ -41,6 +47,9 @@ namespace KINECTmania.kinectProcessing
 
         }
     }
+    /// <summary>
+    /// Subscriber für KinectArrowHitEvent
+    /// </summary>
     public class ArrowHitSubscriber
     {
         private string id;

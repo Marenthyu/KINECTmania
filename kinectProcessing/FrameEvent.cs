@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
 namespace KINECTmania.kinectProcessing
-{
+{   
+    /// <summary>
+    /// Event um ein neues Bild anzukündigen und Bitmapadresse weiter zu geben
+    /// </summary>
     public class BitmapGenerated : EventArgs
     {
         private WriteableBitmap wb;
@@ -23,7 +26,9 @@ namespace KINECTmania.kinectProcessing
 
 
     }
-
+    /// <summary>
+    /// Interface für BitmapGenerator
+    /// </summary>
     public interface BitmapGenerator
     {
         event EventHandler<BitmapGenerated> RaiseBitmapGenerated;
