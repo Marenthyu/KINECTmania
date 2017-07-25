@@ -24,6 +24,7 @@ namespace KINECTmania.GameLogic
         private ArrowHitPublisher Ahp { get; set; }
         private List<Note> remainingNotes { get; set; }
         public static long CurrentTime { get; set; }
+        private List<Note> toRemove = new List<Note>();
     
 
         public GameStateManager()
@@ -57,35 +58,35 @@ namespace KINECTmania.GameLogic
                     if (delta < 33)
                     {
                         OnRaiseGameEvent(new GameEventArgs(n, Accuracy.MARVELOUS, 10000));
-                        remainingNotes.Remove(n);
+                        toRemove.Add(n);
                         return;
                     }
                     if (delta < 66)
                     {
                         OnRaiseGameEvent(new GameEventArgs(n, Accuracy.PERFECT, 6666));
-                        remainingNotes.Remove(n);
+                        toRemove.Add(n);
                         return;
                     }
                     if (delta < 100)
                     {
                         OnRaiseGameEvent(new GameEventArgs(n, Accuracy.GREAT, 3333));
-                        remainingNotes.Remove(n);
+                        toRemove.Add(n);
                         return;
                     }
                     if (delta < 133)
                     {
                         OnRaiseGameEvent(new GameEventArgs(n, Accuracy.GOOD, 500));
-                        remainingNotes.Remove(n);
+                        toRemove.Add(n);
                         return;
                     }
                     if (delta < 166)
                     {
                         OnRaiseGameEvent(new GameEventArgs(n, Accuracy.BAD, 0));
-                        remainingNotes.Remove(n);
+                        toRemove.Add(n);
                         return;
                     }
                     OnRaiseGameEvent(new GameEventArgs(n, Accuracy.BOO, 0));
-                    remainingNotes.Remove(n);
+                    toRemove.Add(n);
                     return;
                 }
             }
@@ -211,7 +212,7 @@ namespace KINECTmania.GameLogic
                 Note current;
                 while (remainingNotes.Any() && (current = remainingNotes.First()).StartTime() <= elapsed - 200)
                 {
-                   
+                        
                         Console.WriteLine("Missed note at " + current.Position());
                         OnRaiseGameEvent(new GameEventArgs(current, Accuracy.MISS, 0));
                         remainingNotes.Remove(current);
@@ -219,6 +220,10 @@ namespace KINECTmania.GameLogic
                     if (remainingNotes.Count == 0)
                     {
                         break;
+                    }
+                    foreach (Note n in toRemove)
+                    {
+                        remainingNotes.Remove(n);
                     }
                     
                 }
