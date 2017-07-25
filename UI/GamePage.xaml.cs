@@ -133,7 +133,7 @@ namespace KINECTmania.GUI
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
                 dealtNotes = lastNoteStarted = 0;
                 ingameClock = new Thread(mainLoop);
-                //new Thread(kdi.Start).Start();
+                new Thread(kdi.Start).Start();
                 //colorBitmap = new WriteableBitmap((int)SystemParameters.MaximizedPrimaryScreenWidth, (int)SystemParameters.MaximizedPrimaryScreenHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
                 //colorBitmapStride = (int)colorBitmap.Width * ((colorBitmap.Format.BitsPerPixel + 7) / 8);
 
@@ -371,7 +371,7 @@ namespace KINECTmania.GUI
             {
                 lastAccuracyLabel.Visibility = Visibility.Hidden;
             })));
-            //kdi.Stop();
+            kdi.Stop();
             App.Gms.ToScores();
             OnRaiseMenuStateChanged(new MenuStateChanged(0));
         }
