@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +38,7 @@ namespace KINECTmania.GUI
         Song currentSong;
         int reactiontime, lastNoteStarted, dealtNotes;
         double startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
-        private BitmapImage colorBitmap;
+        private WriteableBitmap colorBitmap;
         public ImageSource sauce { get { return colorBitmap; } }
         KinectDataInput kdi;
         public static Image DownTarget, RightTarget, UpTarget, LeftTarget;
@@ -133,15 +133,8 @@ namespace KINECTmania.GUI
                 startTime = (DateTime.Now - new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, 0, 0, 0, 0)).TotalMilliseconds;
                 dealtNotes = lastNoteStarted = 0;
                 ingameClock = new Thread(mainLoop);
-                new Thread(kdi.Start).Start();
-                //colorBitmap = new WriteableBitmap((int)SystemParameters.MaximizedPrimaryScreenWidth, (int)SystemParameters.MaximizedPrimaryScreenHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
-                //colorBitmapStride = (int)colorBitmap.Width * ((colorBitmap.Format.BitsPerPixel + 7) / 8);
-
-                colorBitmap = new BitmapImage();
-                
-
-                //await Task.Factory.StartNew(() => drawStream(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.FromCurrentSynchronizationContext());
-
+                kdi.Start();
+              
 
             }
         }
@@ -150,6 +143,8 @@ namespace KINECTmania.GUI
         {
             KinectStreamDisplay.Source = e.Bitmap;
             
+            
+
         }
 
         void HandleSongLoaded(object sender, SongLoaded s)

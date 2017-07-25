@@ -181,7 +181,7 @@ namespace KINECTmania.GameLogic
                 }
 
                 Note current;
-                while ((current = remainingNotes.First()).StartTime() <= elapsed -200)
+                while (remainingNotes.Any() && (current = remainingNotes.First()).StartTime() <= elapsed - 200)
                 {
                    
                         Console.WriteLine("Missed note at " + current.Position());
